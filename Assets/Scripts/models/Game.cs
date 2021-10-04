@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using DefaultNamespace;
+using models;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
-    private UIControllerScript UIControllerScript;
     
     private MapGenerator MapGenerator;
     private GameInstances gameInstances;
@@ -14,15 +13,25 @@ public class Game : MonoBehaviour
     public bool isPaused;
     private bool hasWay;
 
-    private Player currentPlayer;
+    public Player CurrentPlayer { get; private set; }
     private Player enemyPlayer;
     
     public bool putBlock;
     public bool firstBlockWasPut;
+    
+    public delegate void RenderWalls(bool blocked);
+    public delegate void ChangePossiblePlatforms(Player currentPlayer, Player opponent, Point [][] points, bool destroyed);
+    public delegate void EndGame(string text);
+
+    public event RenderWalls OnRenderWalls;
+    public event ChangePossiblePlatforms OnChangePossiblePlatforms;
+    public event EndGame OnEndGame;
+    
+    
+    
     private void Awake()
     {
-        MapGenerator = GameObject.FindObjectOfType<MapGenerator>();
-        UIControllerScript = GameObject.FindObjectOfType<UIControllerScript>();
+        MapGenerator = FindObjectOfType<MapGenerator>();
         putBlock = false;
         firstBlockWasPut = false;
         hasWay = false;
@@ -40,26 +49,23 @@ public class Game : MonoBehaviour
         StartGame();
     }
     
-    public void DoStep(GameObject gameObject)
+    public void DoStep(Point point)
     {
-        Vector3 destination = gameObject.transform.position;
-        CoordinateScript coordinates = gameObject.gameObject.GetComponent<CoordinateScript>();
-        currentPlayer.CurrentY = coordinates.Y;
-        currentPlayer.CurrentX = coordinates.X;
-        currentPlayer.player.transform.position = destination;
-        DestroyPossiblePlatforms();
-        if (CheckWin(currentPlayer))
+        CurrentPlayer.CurrentY = point.Y;
+        CurrentPlayer.CurrentX = point.X;
+        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, true);
+        if (CheckWin(CurrentPlayer))
         {
             return;
         }
         ChangePlayers();
         ChangeButtons();
-        CreatePossiblePlatforms(currentPlayer, enemyPlayer, gameInstances.points);
+        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
     }
 
     public void PutBlock(GameObject gameObject)
     {
-        if (putBlock && currentPlayer.BlocksCount > 0)
+        if (putBlock && CurrentPlayer.BlocksCount > 0)
         {
             CoordinateScript cs = gameObject.GetComponent<CoordinateScript>();
             if (firstBlockWasPut)
@@ -68,11 +74,11 @@ public class Game : MonoBehaviour
                 {
                     gameObject.tag = "Blocked";
                     gameObject.GetComponent<SpriteRenderer>().color = Color.magenta;
-                    currentPlayer.BlocksCount = currentPlayer.BlocksCount - 1;
-                    ChangeWalls();
+                    CurrentPlayer.BlocksCount = CurrentPlayer.BlocksCount - 1;
+                    OnRenderWalls?.Invoke(true);  //ChangeWalls() -> blocked;
                     ChangePlayers();
                     Rewrite();
-                    CreatePossiblePlatforms(currentPlayer, enemyPlayer, gameInstances.points);
+                    OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
                     firstBlockWasPut = false;
                     putBlock = false;
                 }
@@ -129,7 +135,7 @@ public class Game : MonoBehaviour
                 if (flag)
                 {
                     gameObject.tag = "HalfBlocked";
-                    bool flag1 = HasWayToWin(currentPlayer);
+                    bool flag1 = HasWayToWin(CurrentPlayer);
                     Clean();
                     bool flag2 = HasWayToWin(enemyPlayer);
                     Clean();
@@ -137,12 +143,12 @@ public class Game : MonoBehaviour
                     {
                         gameObject.GetComponent<SpriteRenderer>().color = Color.magenta;
                         firstBlockWasPut = true;
-                        DestroyPossiblePlatforms();   
+                        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, true);   
                     }
                     else
                     {
                         gameObject.tag = "Unblocked";
-                        ChangeWalls();
+                        OnRenderWalls?.Invoke(true);
                     }
                 }
             }
@@ -155,28 +161,48 @@ public class Game : MonoBehaviour
         putBlock = false;
         firstBlockWasPut = false;
         gameInstances = MapGenerator.CreateLevel();
-        currentPlayer = gameInstances.player1;
+        CurrentPlayer = gameInstances.player1;
         enemyPlayer = gameInstances.player2;
-        CreatePossiblePlatforms(currentPlayer, enemyPlayer, gameInstances.points);
+        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
+    }
+    
+    private void GenerateDesk()
+    {
+        Vector3 spawnPosition = new Vector3(-6f, 2.5f, 0f);
+        var points = new Point[17][];
+        for (int i = 0; i < 17; i++)
+        {
+            points[i] = new Point[17];
+            if (i % 2 == 0)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    points[i][j * 2] = new Point(null,j * 2, i);
+                    if (j != 8)
+                    {
+                        spawnPosition.x += 0.3f;
+                        points[i][j * 2 + 1] = new Point(null,j * 2 + 1  ,i);
+                    }
+                }
+            }
+            else
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    points[i][j * 2] = new Point(null,j * 2 , i);
+                }
+            }
+        }
     }
     
     public void RestartGame()
     {
         DestroyObjects();
-        UIControllerScript.HideUI("Nobody - WON");
+        OnEndGame?.Invoke("Nobody - WON");
     }
+    
 
-    private void CreatePossiblePlatforms(Player player, Player opponent, Point[][] points)
-    {
-        List<Point> list = FindPossiblePlatforms(player, opponent, points);
-        foreach (var ob in list)
-        {
-            ob.GameObject.GetComponent<SpriteRenderer>().color = Color.gray;
-            ob.GameObject.tag = "Possible";
-        }
-    }
-
-    private List<Point> FindPossiblePlatforms(Player player, Player opponent, Point[][] points)
+    public List<Point> FindPossiblePlatforms(Player player, Player opponent, Point[][] points)
     {
         List<Point> list = new List<Point>();
         if (player.CurrentY > 0)
@@ -305,13 +331,13 @@ public class Game : MonoBehaviour
         if (player.StartY == 0 && player.CurrentY == 16)
         {
             DestroyObjects();
-            UIControllerScript.HideUI(currentPlayer.player.name + " - WON");
+            OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
             return true;
         }
         if (player.StartY == 16 && player.CurrentY == 0)
         {
             DestroyObjects();
-            UIControllerScript.HideUI(currentPlayer.player.name + " - WON");
+            OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
             return true;
         }
         return false;
@@ -329,51 +355,10 @@ public class Game : MonoBehaviour
                 }
             }
         } 
-        Destroy(currentPlayer.player);
+        Destroy(CurrentPlayer.player);
         Destroy(enemyPlayer.player);
     }
     
-    private void DestroyPossiblePlatforms()
-    {
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Possible");
-        for (int i = 0; i < gameObjects.Length; i++)
-        {
-            gameObjects[i].tag = "Platform";
-            gameObjects[i].GetComponent<SpriteRenderer>().color = Color.black;
-        }
-    }
-
-    private void ChangeWalls()
-    {
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("PossibleToBlock");
-        for (int i = 0; i < gameObjects.Length; i++)
-        {
-            gameObjects[i].tag = "Unblocked";
-            gameObjects[i].GetComponent<SpriteRenderer>().color = Color.white;
-        }
-        gameObjects = GameObject.FindGameObjectsWithTag("HalfBlocked");
-        for (int i = 0; i < gameObjects.Length; i++)
-        {
-            gameObjects[i].tag = "Blocked";
-        }
-    }
-    
-    private void ChangeWalls2()
-    {
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("PossibleToBlock");
-        for (int i = 0; i < gameObjects.Length; i++)
-        {
-            gameObjects[i].tag = "Unblocked";
-            gameObjects[i].GetComponent<SpriteRenderer>().color = Color.white;
-        }
-        gameObjects = GameObject.FindGameObjectsWithTag("HalfBlocked");
-        for (int i = 0; i < gameObjects.Length; i++)
-        {
-            gameObjects[i].tag = "Unblocked";
-            gameObjects[i].GetComponent<SpriteRenderer>().color = Color.white;
-        }
-    }
-
     public void ChangePuttBlockState()
     {
         if (!isPaused)
@@ -381,17 +366,17 @@ public class Game : MonoBehaviour
             putBlock = !putBlock;
             if (putBlock)
             {
-                DestroyPossiblePlatforms();
+                OnChangePossiblePlatforms?.Invoke(CurrentPlayer,enemyPlayer, gameInstances.points, true);
             }
             else
             {
-                CreatePossiblePlatforms(currentPlayer, enemyPlayer, gameInstances.points);
+                OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
             }
 
             if (firstBlockWasPut)
             {
                 firstBlockWasPut = false;
-                ChangeWalls2();
+                OnRenderWalls?.Invoke(false);
             }
         }
     }
@@ -403,25 +388,25 @@ public class Game : MonoBehaviour
 
     private void ChangePlayers()
     {
-        Player p = currentPlayer;
-        currentPlayer = enemyPlayer;
+        Player p = CurrentPlayer;
+        CurrentPlayer = enemyPlayer;
         enemyPlayer = p;  
     }
 
     private void Rewrite()
     {
-        currentPlayer.BlocksCountField.GetComponent<Text>().text = currentPlayer.player.name + ": " + currentPlayer.BlocksCount;
+        CurrentPlayer.BlocksCountField.GetComponent<Text>().text = CurrentPlayer.Name + ": " + CurrentPlayer.BlocksCount;
         
-        enemyPlayer.BlocksCountField.GetComponent<Text>().text = enemyPlayer.player.name + ": " + enemyPlayer.BlocksCount;
+        enemyPlayer.BlocksCountField.GetComponent<Text>().text = enemyPlayer.Name + ": " + enemyPlayer.BlocksCount;
         enemyPlayer.BlocksUseButton.GetComponent<ButtonHandler>().ChangeText();
         ChangeButtons();
     }
 
     private void ChangeButtons()
     {
-        if (currentPlayer.BlocksCount > 0)
+        if (CurrentPlayer.BlocksCount > 0)
         {
-            currentPlayer.BlocksUseButton.SetActive(true);
+            CurrentPlayer.BlocksUseButton.SetActive(true);
         }
         enemyPlayer.BlocksUseButton.SetActive(false);
     }
@@ -452,7 +437,7 @@ public class Game : MonoBehaviour
             return;
         }
         Player temporalPLayer = new Player(player.player, player.StartY, player.FinishY, player.CurrentX,
-            player.CurrentY, player.BlocksCount);
+            player.CurrentY, player.BlocksCount, player.Name);
         Point currentPoint = gameInstances.points[player.CurrentY][player.CurrentX];
         currentPoint.IsVisited = true;
         List<Point> list = FindPossiblePlatformsForWay(temporalPLayer, gameInstances.points);

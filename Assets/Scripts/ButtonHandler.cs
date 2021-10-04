@@ -12,14 +12,7 @@ public class ButtonHandler : MonoBehaviour
         if (!isPaused)
         {
             isInUse = !isInUse;
-            if (isInUse)
-            {
-                textField.GetComponent<Text>().text = "STOP";
-            }
-            else
-            {
-                textField.GetComponent<Text>().text = "USE";
-            }
+            textField.GetComponent<Text>().text = isInUse ? "STOP" : "USE";
         }
     }
     

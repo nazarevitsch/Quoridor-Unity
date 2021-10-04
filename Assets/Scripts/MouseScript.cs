@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using models;
 using UnityEngine;
 
 public class MouseScript : MonoBehaviour
@@ -9,7 +8,7 @@ public class MouseScript : MonoBehaviour
 
     private void Awake()
     {
-        Game = GameObject.FindObjectOfType<Game>();
+        Game = FindObjectOfType<Game>();
     }
 
     void Update()
@@ -32,7 +31,11 @@ public class MouseScript : MonoBehaviour
 
                     if (hit.collider.gameObject.CompareTag("Possible"))
                     {
-                        Game.DoStep(hit.collider.gameObject);
+                        var gameObj = hit.collider.gameObject;
+                        Vector3 destination = gameObj.transform.position;
+                        Game.CurrentPlayer.player.transform.position = destination;
+                        var cs = gameObj.gameObject.GetComponent<CoordinateScript>();
+                        Game.DoStep(new Point(null, cs.X, cs.Y));
                     }
                 }
             }

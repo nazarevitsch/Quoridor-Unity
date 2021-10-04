@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 
-namespace DefaultNamespace
+namespace models
 {
     public class Player
     {
         public GameObject player;
+        public string Name { get; }
         public int StartY;
         public int FinishY;
         public int CurrentX;
@@ -14,14 +15,15 @@ namespace DefaultNamespace
         public GameObject BlocksCountField;
         public GameObject BlocksUseButton;
 
-        public Player(GameObject player,int startY, int finishY, int currentX, int currentY, int blocksCount)
+        public Player(GameObject player, int startY, int finishY, int currentX, int currentY, int blocksCount, string name)
         {
             this.player = player;
-            this.CurrentX = currentX;
-            this.CurrentY = currentY;
-            this.FinishY = finishY;
-            this.StartY = startY;
-            this.BlocksCount = blocksCount;
+            CurrentX = currentX;
+            CurrentY = currentY;
+            FinishY = finishY;
+            StartY = startY;
+            BlocksCount = blocksCount;
+            Name = name;
         }
     }
 }

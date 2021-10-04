@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class UIControllerScript : MonoBehaviour
@@ -8,7 +9,15 @@ public class UIControllerScript : MonoBehaviour
     public GameObject win;
     public GameObject pause;
     public GameObject restart;
+
+    private Game _game;
     
+    private void Awake()
+    {
+        _game = FindObjectOfType<Game>();
+        _game.OnEndGame += HideUI;
+    }
+
     public void HideUI(string winner)
     {
         scores.SetActive(false);
