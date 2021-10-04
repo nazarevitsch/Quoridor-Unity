@@ -1,455 +1,428 @@
 ﻿using System.Collections.Generic;
-using models;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class Game : MonoBehaviour
+namespace models
 {
-    
-    private MapGenerator MapGenerator;
-    private GameInstances gameInstances;
-    
-    public bool withPc;
-    public bool isPaused;
-    private bool hasWay;
+    public class Game : MonoBehaviour
+    {
+        private const int FieldSize = 17;
+        public bool withPc;
+        public bool isPaused;
+        private bool hasWay;
 
-    public Player CurrentPlayer { get; private set; }
-    private Player enemyPlayer;
+        public Player CurrentPlayer { get; private set; }
+        public Player EnemyPlayer { get; private set; }
     
-    public bool putBlock;
-    public bool firstBlockWasPut;
+        public Point[][] Points { get; private set; }
     
-    public delegate void RenderWalls(bool blocked);
-    public delegate void ChangePossiblePlatforms(Player currentPlayer, Player opponent, Point [][] points, bool destroyed);
-    public delegate void EndGame(string text);
+        public bool putBlock;
+        public bool firstBlockWasPut;
+    
+        public delegate void RenderWalls(bool blocked);
+        public delegate void ChangePossiblePlatforms(Player currentPlayer, Player opponent, Point [][] points, bool destroyed);
+        public delegate void EndGame(string text);
+        public delegate void StartGameE(Player curPlayer, Player opponent, Point [][] points);
+        public delegate void PointTagChanged(string tag, int x, int y);
+        public delegate void PlayersChanged(Player currentPlayer, Player opponent);
 
-    public event RenderWalls OnRenderWalls;
-    public event ChangePossiblePlatforms OnChangePossiblePlatforms;
-    public event EndGame OnEndGame;
+        public event RenderWalls OnRenderWalls;
+        public event ChangePossiblePlatforms OnChangePossiblePlatforms;
+        public event EndGame OnEndGame;
+        public event StartGameE OnStartGame;
+        public event PointTagChanged OnPointTagChanged;
+        public event PlayersChanged OnPlayersChanged;
     
-    
-    
-    private void Awake()
-    {
-        MapGenerator = FindObjectOfType<MapGenerator>();
-        putBlock = false;
-        firstBlockWasPut = false;
-        hasWay = false;
-    }
-
-    public void PlayWithPC()
-    {
-        withPc = true;
-        StartGame();
-    }
-    
-    public void PlayWithFriend()
-    {
-        withPc = false;
-        StartGame();
-    }
-    
-    public void DoStep(Point point)
-    {
-        CurrentPlayer.CurrentY = point.Y;
-        CurrentPlayer.CurrentX = point.X;
-        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, true);
-        if (CheckWin(CurrentPlayer))
+        private void Awake()
         {
-            return;
+            putBlock = false;
+            firstBlockWasPut = false;
+            hasWay = false;
         }
-        ChangePlayers();
-        ChangeButtons();
-        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
-    }
 
-    public void PutBlock(GameObject gameObject)
-    {
-        if (putBlock && CurrentPlayer.BlocksCount > 0)
+        public void PlayWithPC()
         {
-            CoordinateScript cs = gameObject.GetComponent<CoordinateScript>();
-            if (firstBlockWasPut)
+            withPc = true;
+            StartGame();
+        }
+    
+        public void PlayWithFriend()
+        {
+            withPc = false;
+            StartGame();
+        }
+    
+        public void DoStep(Point point)
+        {
+            CurrentPlayer.CurrentY = point.Y;
+            CurrentPlayer.CurrentX = point.X;
+            OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, true);
+            if (CheckWin(CurrentPlayer)) return;
+            ChangePlayers();
+            OnPlayersChanged?.Invoke(CurrentPlayer, EnemyPlayer);
+            OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
+        }
+        public void PutBlock(Point point)
+        {
+            if (putBlock && CurrentPlayer.BlocksCount > 0)
             {
-                if (gameObject.CompareTag("PossibleToBlock"))
+                if (firstBlockWasPut)
                 {
-                    gameObject.tag = "Blocked";
-                    gameObject.GetComponent<SpriteRenderer>().color = Color.magenta;
-                    CurrentPlayer.BlocksCount = CurrentPlayer.BlocksCount - 1;
-                    OnRenderWalls?.Invoke(true);  //ChangeWalls() -> blocked;
-                    ChangePlayers();
-                    Rewrite();
-                    OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
-                    firstBlockWasPut = false;
-                    putBlock = false;
-                }
-            }
-            else
-            {
-                bool flag = false;
-                if (cs.Y % 2 == 0)
-                {
-                    if (cs.Y > 0)
+                    if (point.Tag == "PossibleToBlock")
                     {
-                        if (gameInstances.points[cs.Y - 2][cs.X].GameObject.CompareTag("Unblocked")
-                            && (gameInstances.points[cs.Y - 1][cs.X + 1].GameObject.CompareTag("Unblocked")
-                            || gameInstances.points[cs.Y - 1][cs.X - 1].GameObject.CompareTag("Unblocked")))
-                        {
-                            gameInstances.points[cs.Y - 2][cs.X].GameObject.tag = "PossibleToBlock";
-                            gameInstances.points[cs.Y - 2][cs.X].GameObject.GetComponent<SpriteRenderer>().color =
-                                Color.yellow;
-                            flag = true;
-                        }
-                    }
-                    if (cs.Y < 16)
-                    {
-                        if (gameInstances.points[cs.Y + 2][cs.X].GameObject.CompareTag("Unblocked")
-                            && (gameInstances.points[cs.Y + 1][cs.X + 1].GameObject.CompareTag("Unblocked")
-                            || gameInstances.points[cs.Y + 1][cs.X - 1].GameObject.CompareTag("Unblocked")))
-                        {
-                            gameInstances.points[cs.Y + 2][cs.X].GameObject.tag = "PossibleToBlock";
-                            gameInstances.points[cs.Y + 2][cs.X].GameObject.GetComponent<SpriteRenderer>().color =
-                                Color.yellow;
-                            flag = true;
-                        }
+                        point.Tag = "Blocked";
+                        OnPointTagChanged?.Invoke("Blocked", point.X, point.Y);
+                        CurrentPlayer.BlocksCount -= 1;
+                        OnRenderWalls?.Invoke(true);  //ChangeWalls() -> blocked;
+                        ChangePlayers();
+                        OnPlayersChanged?.Invoke(CurrentPlayer, EnemyPlayer);
+                        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
+                        firstBlockWasPut = false;
+                        putBlock = false;
                     }
                 }
                 else
                 {
-                    if (cs.X > 0 && gameInstances.points[cs.Y ][cs.X - 2].GameObject.CompareTag("Unblocked") 
-                                && gameInstances.points[cs.Y + 1][cs.X - 1].GameObject.CompareTag("Unblocked") 
-                                && gameInstances.points[cs.Y - 1][cs.X - 1].GameObject.CompareTag("Unblocked"))
+                    bool flag = false;
+                    if (point.Y % 2 == 0)
                     {
-                        gameInstances.points[cs.Y][cs.X - 2].GameObject.tag = "PossibleToBlock";
-                        gameInstances.points[cs.Y][cs.X - 2].GameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
-                        flag = true;
-                    }
-                    if (cs.X < 16 && gameInstances.points[cs.Y ][cs.X + 2].GameObject.CompareTag("Unblocked") 
-                                  && gameInstances.points[cs.Y + 1][cs.X + 1].GameObject.CompareTag("Unblocked") 
-                                  && gameInstances.points[cs.Y - 1][cs.X + 1].GameObject.CompareTag("Unblocked"))
-                    {
-                        gameInstances.points[cs.Y][cs.X + 2].GameObject.tag = "PossibleToBlock";
-                        gameInstances.points[cs.Y][cs.X + 2].GameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
-                        flag = true;
-                    }
-                }
-                if (flag)
-                {
-                    gameObject.tag = "HalfBlocked";
-                    bool flag1 = HasWayToWin(CurrentPlayer);
-                    Clean();
-                    bool flag2 = HasWayToWin(enemyPlayer);
-                    Clean();
-                    if (flag1 && flag2)
-                    {
-                        gameObject.GetComponent<SpriteRenderer>().color = Color.magenta;
-                        firstBlockWasPut = true;
-                        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, true);   
+                        if (point.Y > 0)
+                        {
+                            if (Points[point.Y - 2][point.X].Tag == "Unblocked"
+                                && (Points[point.Y - 1][point.X + 1].Tag == "Unblocked"
+                                    || Points[point.Y - 1][point.X - 1].Tag == "Unblocked"))
+                            {
+                                Points[point.Y - 2][point.X].Tag = "PossibleToBlock";
+                                OnPointTagChanged?.Invoke("PossibleToBlock", point.X, point.Y - 2);
+                                flag = true;
+                            }
+                        }
+                        if (point.Y < 16)
+                        {
+                            if (Points[point.Y + 2][point.X].Tag == "Unblocked"
+                                && (Points[point.Y + 1][point.X + 1].Tag == "Unblocked"
+                                    || Points[point.Y + 1][point.X - 1].Tag == "Unblocked"))
+                            {
+                                Points[point.Y + 2][point.X].Tag = "PossibleToBlock";
+                                OnPointTagChanged?.Invoke("PossibleToBlock", point.X, point.Y + 2);
+                                flag = true;
+                            }
+                        }
                     }
                     else
                     {
-                        gameObject.tag = "Unblocked";
-                        OnRenderWalls?.Invoke(true);
-                    }
-                }
-            }
-        }
-    }
-
-    private void StartGame()
-    {
-        isPaused = false;
-        putBlock = false;
-        firstBlockWasPut = false;
-        gameInstances = MapGenerator.CreateLevel();
-        CurrentPlayer = gameInstances.player1;
-        enemyPlayer = gameInstances.player2;
-        OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
-    }
-    
-    private void GenerateDesk()
-    {
-        Vector3 spawnPosition = new Vector3(-6f, 2.5f, 0f);
-        var points = new Point[17][];
-        for (int i = 0; i < 17; i++)
-        {
-            points[i] = new Point[17];
-            if (i % 2 == 0)
-            {
-                for (int j = 0; j < 9; j++)
-                {
-                    points[i][j * 2] = new Point(null,j * 2, i);
-                    if (j != 8)
-                    {
-                        spawnPosition.x += 0.3f;
-                        points[i][j * 2 + 1] = new Point(null,j * 2 + 1  ,i);
-                    }
-                }
-            }
-            else
-            {
-                for (int j = 0; j < 9; j++)
-                {
-                    points[i][j * 2] = new Point(null,j * 2 , i);
-                }
-            }
-        }
-    }
-    
-    public void RestartGame()
-    {
-        DestroyObjects();
-        OnEndGame?.Invoke("Nobody - WON");
-    }
-    
-
-    public List<Point> FindPossiblePlatforms(Player player, Player opponent, Point[][] points)
-    {
-        List<Point> list = new List<Point>();
-        if (player.CurrentY > 0)
-        {
-            if (points[player.CurrentY - 1][player.CurrentX].GameObject.CompareTag("Unblocked"))
-            {
-                if (opponent.CurrentX == player.CurrentX && opponent.CurrentY + 2 == player.CurrentY)
-                {
-                    if (opponent.CurrentY != 0)
-                    {
-                        if (points[player.CurrentY - 3][player.CurrentX].GameObject.CompareTag("Unblocked"))
+                        if (point.X > 0 && Points[point.Y ][point.X - 2].Tag == "Unblocked"
+                                        && Points[point.Y + 1][point.X - 1].Tag == "Unblocked"
+                                        && Points[point.Y - 1][point.X - 1].Tag == "Unblocked")
                         {
-                            list.Add(points[player.CurrentY - 4][player.CurrentX]);
+                            Points[point.Y][point.X - 2].Tag = "PossibleToBlock";
+                            OnPointTagChanged?.Invoke("PossibleToBlock", point.X - 2, point.Y);
+                            flag = true;
+                        }
+                        if (point.X < 16 && Points[point.Y ][point.X + 2].Tag == "Unblocked"
+                                         && Points[point.Y + 1][point.X + 1].Tag == "Unblocked"
+                                         && Points[point.Y - 1][point.X + 1].Tag == "Unblocked")
+                        {
+                            Points[point.Y][point.X + 2].Tag = "PossibleToBlock";
+                            OnPointTagChanged?.Invoke("PossibleToBlock", point.X + 2, point.Y);
+                            flag = true;
+                        }
+                    }
+                    if (flag)
+                    {
+                        point.Tag = "HalfBlocked";
+                        bool flag1 = HasWayToWin(CurrentPlayer);
+                        Clean();
+                        bool flag2 = HasWayToWin(EnemyPlayer);
+                        Clean();
+                        if (flag1 && flag2)
+                        {
+                            firstBlockWasPut = true;
+                            OnPointTagChanged?.Invoke("HalfBlocked", point.X, point.Y);
+                            OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, true);   
+                        }
+                        else
+                        {
+                            point.Tag = "Unblocked";
+                            OnPointTagChanged?.Invoke("Unblocked", point.X, point.Y);
+                            OnRenderWalls?.Invoke(true);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void StartGame()
+        {
+            isPaused = putBlock = firstBlockWasPut = false;
+            SpawnPlayers();
+            Points = GenerateDesk();
+            OnStartGame?.Invoke(CurrentPlayer, EnemyPlayer, Points);
+            OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
+        }
+    
+        private void SpawnPlayers()
+        {
+            CurrentPlayer = new Player( 16, 0, 8, 16, 9, "Player 1");
+            EnemyPlayer = new Player( 0, 16, 8, 4, 9, "Player 2");
+        }
+    
+        private Point[][] GenerateDesk()
+        {
+            var points = new Point[17][];
+            for (int i = 0; i < 17; i++)
+            {
+                points[i] = new Point[17];
+                if (i % 2 == 0)
+                {
+                    for (int j = 0; j < 9; j++)
+                    {
+                        points[i][j * 2] = new Point(j * 2, i, "Platform");
+                        if (j != 8)
+                        {
+                            points[i][j * 2 + 1] = new Point(j * 2 + 1  ,i, "Unblocked");
                         }
                     }
                 }
                 else
                 {
+                    for (int j = 0; j < 9; j++)
+                    {
+                        points[i][j * 2] = new Point(j * 2 , i, "Unblocked");
+                    }
+                }
+            }
+
+            return points;
+        }
+    
+        public void RestartGame()
+        {
+            OnEndGame?.Invoke("Nobody - WON");
+        }
+    
+        public List<Point> FindPossiblePlatforms(Player player, Player opponent, Point[][] points)
+        {
+            List<Point> list = new List<Point>();
+            if (player.CurrentY > 0)
+            {
+                if (points[player.CurrentY - 1][player.CurrentX].Tag == "Unblocked")
+                {
+                    if (opponent.CurrentX == player.CurrentX && opponent.CurrentY + 2 == player.CurrentY)
+                    {
+                        if (opponent.CurrentY != 0)
+                        {
+                            if (points[player.CurrentY - 3][player.CurrentX].Tag == "Unblocked")
+                            {
+                                list.Add(points[player.CurrentY - 4][player.CurrentX]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        list.Add(points[player.CurrentY - 2][player.CurrentX]);
+                    }
+                }
+            }
+            if (player.CurrentY < 16)
+            {
+                if (points[player.CurrentY + 1][player.CurrentX].Tag == "Unblocked")
+                {
+                    if (opponent.CurrentX == player.CurrentX && opponent.CurrentY - 2 == player.CurrentY)
+                    {
+                        if (opponent.CurrentY != 16)
+                        {
+                            if (points[player.CurrentY + 3][player.CurrentX].Tag == "Unblocked")
+                            {
+                                list.Add(points[player.CurrentY + 4][player.CurrentX]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        list.Add(points[player.CurrentY + 2][player.CurrentX]);
+                    }
+                }
+            }
+            if (player.CurrentX > 0)
+            {
+                if (points[player.CurrentY][player.CurrentX - 1].Tag == "Unblocked")
+                {
+                    if (opponent.CurrentX + 2 == player.CurrentX && opponent.CurrentY == player.CurrentY)
+                    {
+                        if (opponent.CurrentX != 0)
+                        {
+                            if (points[player.CurrentY][player.CurrentX - 3].Tag == "Unblocked")
+                            {
+                                list.Add(points[player.CurrentY][player.CurrentX - 4]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        list.Add(points[player.CurrentY][player.CurrentX - 2]);
+                    }
+                }
+            }
+            if (player.CurrentX < 16)
+            {
+                if (points[player.CurrentY][player.CurrentX + 1].Tag == "Unblocked")
+                {
+                    if (opponent.CurrentX - 2 == player.CurrentX && opponent.CurrentY == player.CurrentY)
+                    {
+                        if (opponent.CurrentX != 16)
+                        {
+                            if (points[player.CurrentY][player.CurrentX + 3].Tag == "Unblocked")
+                            {
+                                list.Add(points[player.CurrentY][player.CurrentX + 4]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        list.Add(points[player.CurrentY][player.CurrentX + 2]);
+                    }
+                }
+            }
+            return list;
+        }
+    
+        private List<Point> FindPossiblePlatformsForWay(Player player, Point[][] points)
+        {
+            List<Point> list = new List<Point>();
+            if (player.CurrentY > 0)
+            {
+                if (points[player.CurrentY - 1][player.CurrentX].Tag == "Unblocked")
+                {
+
                     list.Add(points[player.CurrentY - 2][player.CurrentX]);
+
                 }
             }
-        }
-        if (player.CurrentY < 16)
-        {
-            if (points[player.CurrentY + 1][player.CurrentX].GameObject.CompareTag("Unblocked"))
+            if (player.CurrentY < 16)
             {
-                if (opponent.CurrentX == player.CurrentX && opponent.CurrentY - 2 == player.CurrentY)
-                {
-                    if (opponent.CurrentY != 16)
-                    {
-                        if (points[player.CurrentY + 3][player.CurrentX].GameObject.CompareTag("Unblocked"))
-                        {
-                            list.Add(points[player.CurrentY + 4][player.CurrentX]);
-                        }
-                    }
-                }
-                else
+                if (points[player.CurrentY + 1][player.CurrentX].Tag == "Unblocked")
                 {
                     list.Add(points[player.CurrentY + 2][player.CurrentX]);
+                
                 }
             }
-        }
-        if (player.CurrentX > 0)
-        {
-            if (points[player.CurrentY][player.CurrentX - 1].GameObject.CompareTag("Unblocked"))
+            if (player.CurrentX > 0)
             {
-                if (opponent.CurrentX + 2 == player.CurrentX && opponent.CurrentY == player.CurrentY)
-                {
-                    if (opponent.CurrentX != 0)
-                    {
-                        if (points[player.CurrentY][player.CurrentX - 3].GameObject.CompareTag("Unblocked"))
-                        {
-                            list.Add(points[player.CurrentY][player.CurrentX - 4]);
-                        }
-                    }
-                }
-                else
+                if (points[player.CurrentY][player.CurrentX - 1].Tag == "Unblocked")
                 {
                     list.Add(points[player.CurrentY][player.CurrentX - 2]);
                 }
             }
-        }
-        if (player.CurrentX < 16)
-        {
-            if (points[player.CurrentY][player.CurrentX + 1].GameObject.CompareTag("Unblocked"))
+            if (player.CurrentX < 16)
             {
-                if (opponent.CurrentX - 2 == player.CurrentX && opponent.CurrentY == player.CurrentY)
-                {
-                    if (opponent.CurrentX != 16)
-                    {
-                        if (points[player.CurrentY][player.CurrentX + 3].GameObject.CompareTag("Unblocked"))
-                        {
-                            list.Add(points[player.CurrentY][player.CurrentX + 4]);
-                        }
-                    }
-                }
-                else
+                if (points[player.CurrentY][player.CurrentX + 1].Tag == "Unblocked")
                 {
                     list.Add(points[player.CurrentY][player.CurrentX + 2]);
+
                 }
             }
+            return list;
         }
-        return list;
-    }
+
+        private bool CheckWin(Player player)
+        {
+            if (player.StartY == 0 && player.CurrentY == 16)
+            {
+                OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
+                return true;
+            }
+            if (player.StartY == 16 && player.CurrentY == 0)
+            {
+                OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
+                return true;
+            }
+            return false;
+        }
     
-    private List<Point> FindPossiblePlatformsForWay(Player player, Point[][] points)
-    {
-        List<Point> list = new List<Point>();
-        if (player.CurrentY > 0)
+        public void ChangePuttBlockState()
         {
-            if (points[player.CurrentY - 1][player.CurrentX].GameObject.CompareTag("Unblocked"))
+            if (!isPaused)
             {
+                putBlock = !putBlock;
+                OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, putBlock);
 
-                list.Add(points[player.CurrentY - 2][player.CurrentX]);
-
-            }
-        }
-        if (player.CurrentY < 16)
-        {
-            if (points[player.CurrentY + 1][player.CurrentX].GameObject.CompareTag("Unblocked"))
-            {
-                list.Add(points[player.CurrentY + 2][player.CurrentX]);
-                
-            }
-        }
-        if (player.CurrentX > 0)
-        {
-            if (points[player.CurrentY][player.CurrentX - 1].GameObject.CompareTag("Unblocked"))
-            {
-                list.Add(points[player.CurrentY][player.CurrentX - 2]);
-            }
-        }
-        if (player.CurrentX < 16)
-        {
-            if (points[player.CurrentY][player.CurrentX + 1].GameObject.CompareTag("Unblocked"))
-            {
-                list.Add(points[player.CurrentY][player.CurrentX + 2]);
-
-            }
-        }
-        return list;
-    }
-
-    private bool CheckWin(Player player)
-    {
-        if (player.StartY == 0 && player.CurrentY == 16)
-        {
-            DestroyObjects();
-            OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
-            return true;
-        }
-        if (player.StartY == 16 && player.CurrentY == 0)
-        {
-            DestroyObjects();
-            OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
-            return true;
-        }
-        return false;
-    }
-
-    private void DestroyObjects()
-    {
-        for (int i = 0; i < 17; i++)
-        {
-            for (int j = 0; j < 17; j++)
-            {
-                if (gameInstances.points[i][j] != null)
+                if (firstBlockWasPut)
                 {
-                    Destroy(gameInstances.points[i][j].GameObject);
+                    firstBlockWasPut = false;
+                    OnRenderWalls?.Invoke(false);
                 }
             }
-        } 
-        Destroy(CurrentPlayer.player);
-        Destroy(enemyPlayer.player);
-    }
-    
-    public void ChangePuttBlockState()
-    {
-        if (!isPaused)
-        {
-            putBlock = !putBlock;
-            if (putBlock)
-            {
-                OnChangePossiblePlatforms?.Invoke(CurrentPlayer,enemyPlayer, gameInstances.points, true);
-            }
-            else
-            {
-                OnChangePossiblePlatforms?.Invoke(CurrentPlayer, enemyPlayer, gameInstances.points, false);
-            }
+        }
 
-            if (firstBlockWasPut)
+        public void ChangePauseState()
+        {
+            isPaused = !isPaused;
+        }
+
+        private void ChangePlayers()
+        {
+            Player p = CurrentPlayer;
+            CurrentPlayer = EnemyPlayer;
+            EnemyPlayer = p;  
+        }
+
+        private void Clean()
+        {
+            hasWay = false;
+            for (int i = 0; i < 17; i += 2)
             {
-                firstBlockWasPut = false;
-                OnRenderWalls?.Invoke(false);
+                for (int j = 0; j < 9; j++)
+                {
+                    Points[i][j * 2].IsVisited = false;
+                }
             }
         }
-    }
 
-    public void ChangePauseState()
-    {
-        isPaused = !isPaused;
-    }
-
-    private void ChangePlayers()
-    {
-        Player p = CurrentPlayer;
-        CurrentPlayer = enemyPlayer;
-        enemyPlayer = p;  
-    }
-
-    private void Rewrite()
-    {
-        CurrentPlayer.BlocksCountField.GetComponent<Text>().text = CurrentPlayer.Name + ": " + CurrentPlayer.BlocksCount;
-        
-        enemyPlayer.BlocksCountField.GetComponent<Text>().text = enemyPlayer.Name + ": " + enemyPlayer.BlocksCount;
-        enemyPlayer.BlocksUseButton.GetComponent<ButtonHandler>().ChangeText();
-        ChangeButtons();
-    }
-
-    private void ChangeButtons()
-    {
-        if (CurrentPlayer.BlocksCount > 0)
+        private bool HasWayToWin(Player player)
         {
-            CurrentPlayer.BlocksUseButton.SetActive(true);
+            FindWayToWin(player);
+            return hasWay;
         }
-        enemyPlayer.BlocksUseButton.SetActive(false);
-    }
 
-    public void Clean()
-    {
-        hasWay = false;
-        for (int i = 0; i < 17; i += 2)
+        private void FindWayToWin(Player player)
         {
-            for (int j = 0; j < 9; j++)
+            if (player.CurrentY == player.FinishY || hasWay)
             {
-                gameInstances.points[i][j * 2].IsVisited = false;
+                hasWay = true;
+                return;
+            }
+            Player temporalPLayer = new Player(player.StartY, player.FinishY, player.CurrentX,
+                player.CurrentY, player.BlocksCount, player.Name);
+            Point currentPoint = Points[player.CurrentY][player.CurrentX];
+            currentPoint.IsVisited = true;
+            List<Point> list = FindPossiblePlatformsForWay(temporalPLayer, Points);
+            foreach (var point in list)
+            {
+                if (!point.IsVisited)
+                {
+                    temporalPLayer.CurrentX = point.X;
+                    temporalPLayer.CurrentY = point.Y;
+                    point.IsVisited = true;
+                    FindWayToWin(temporalPLayer);
+                }
             }
         }
-    }
 
-    private bool HasWayToWin(Player player)
-    {
-        FindWayToWin(player);
-        return hasWay;
-    }
-
-    private void FindWayToWin(Player player)
-    {
-        if (player.CurrentY == player.FinishY || hasWay)
+        public Point[] FindPointsWithTag(string tagName)
         {
-            hasWay = true;
-            return;
-        }
-        Player temporalPLayer = new Player(player.player, player.StartY, player.FinishY, player.CurrentX,
-            player.CurrentY, player.BlocksCount, player.Name);
-        Point currentPoint = gameInstances.points[player.CurrentY][player.CurrentX];
-        currentPoint.IsVisited = true;
-        List<Point> list = FindPossiblePlatformsForWay(temporalPLayer, gameInstances.points);
-        foreach (var point in list)
-        {
-            if (!point.IsVisited)
+            var res = new List<Point>(FieldSize * 2);
+            for (var y = 0; y < FieldSize; y++)
             {
-                temporalPLayer.CurrentX = point.GameObject.GetComponent<CoordinateScript>().X;
-                temporalPLayer.CurrentY = point.GameObject.GetComponent<CoordinateScript>().Y;
-                point.IsVisited = true;
-                FindWayToWin(temporalPLayer);
+                for (var x = 0; x < FieldSize; x++)
+                {
+                    if (Points[y][x]?.Tag == tagName)
+                    {
+                        res.Add(Points[y][x]);
+                    }
+                }
             }
+
+            return res.ToArray();
         }
     }
 }

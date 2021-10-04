@@ -1,16 +1,25 @@
 ﻿using System.Collections.Generic;
+using Controllers;
 using models;
+using store;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace views
 {
     public class GameMapRender : MonoBehaviour
     {
         private Game _game;
+
+        private UnityObjStore _objStore;
+        
         private void Awake()
         {
+            _objStore = FindObjectOfType<UnityObjStore>();
             _game = FindObjectOfType<Game>();
             _game.OnRenderWalls += ChangeWalls;
+            _game.OnPointTagChanged += TagChanged;
+            _game.OnPlayersChanged += ChangeButtons;
             _game.OnChangePossiblePlatforms += (player, opponent, points, destroyed) =>
             {
                 if (destroyed)
@@ -23,38 +32,71 @@ namespace views
 
         private void ChangeWalls(bool blocked)
         {
-            GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("PossibleToBlock");
-            foreach (var obj in gameObjects)
+            Point[] gameObjects = _game.FindPointsWithTag("PossibleToBlock");
+            foreach (var point in gameObjects)
             {
-                obj.tag = "Unblocked";
-                obj.GetComponent<SpriteRenderer>().color = Color.white;
+                point.Tag = "Unblocked";
+                _objStore.PointGameObjects[point.Y][point.X].GetComponent<SpriteRenderer>().color = Color.white;
             }
-            gameObjects = GameObject.FindGameObjectsWithTag("HalfBlocked");
-            foreach (var obj in gameObjects)
+            gameObjects = _game.FindPointsWithTag("HalfBlocked");
+            foreach (var point in gameObjects)
             {
-                obj.tag = blocked ? "Blocked" : "Unblocked";
+                _game.Points[point.Y][point.X].Tag = blocked ? "Blocked" : "Unblocked";
                 if (!blocked)
-                    obj.GetComponent<SpriteRenderer>().color = Color.white;
+                    _objStore.PointGameObjects[point.Y][point.X].GetComponent<SpriteRenderer>().color = Color.white;
 
             }
         }
         private void CreatePossiblePlatforms(Player player, Player opponent, Point[][] points)
         {
             List<Point> list = _game.FindPossiblePlatforms(player, opponent, points);
-            foreach (var ob in list)
+            foreach (var point in list)
             {
-                ob.GameObject.GetComponent<SpriteRenderer>().color = Color.gray;
-                ob.GameObject.tag = "Possible";
+                _objStore.PointGameObjects[point.Y][point.X].GetComponent<SpriteRenderer>().color = Color.gray;
+                point.Tag = "Possible";
             }
         }
         private void DestroyPossiblePlatforms()
         {
-            GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Possible");
-            for (int i = 0; i < gameObjects.Length; i++)
+            Point[] gameObjects = _game.FindPointsWithTag("Possible");
+            foreach (var point in gameObjects)
             {
-                gameObjects[i].tag = "Platform";
-                gameObjects[i].GetComponent<SpriteRenderer>().color = Color.black;
+                point.Tag = "Platform";
+                _objStore.PointGameObjects[point.Y][point.X].GetComponent<SpriteRenderer>().color = Color.black;
             }
+        }
+
+        private void TagChanged(string tagName, int x, int y)
+        {
+            switch (tagName)
+            {
+                case "PossibleToBlock":
+                    _objStore
+                        .PointGameObjects[y][x]
+                        .GetComponent<SpriteRenderer>()
+                        .color = Color.yellow;
+                    break;
+                case "Blocked":
+                case "HalfBlocked":
+                    _objStore
+                        .PointGameObjects[y][x]
+                        .GetComponent<SpriteRenderer>()
+                        .color = Color.magenta;
+                    break;
+            }
+            
+        }
+        
+        private void ChangeButtons(Player currentPlayer, Player enemyPlayer)
+        {
+            currentPlayer.BlocksCountField.GetComponent<Text>().text = currentPlayer.Name + ": " + currentPlayer.BlocksCount;
+            enemyPlayer.BlocksCountField.GetComponent<Text>().text = enemyPlayer.Name + ": " + enemyPlayer.BlocksCount;
+            enemyPlayer.BlocksUseButton.GetComponent<ButtonHandler>().ChangeText();
+            if (currentPlayer.BlocksCount > 0)
+            {
+                currentPlayer.BlocksUseButton.SetActive(true);
+            }
+            enemyPlayer.BlocksUseButton.SetActive(false);
         }
 
     }

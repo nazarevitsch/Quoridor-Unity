@@ -4,7 +4,6 @@ namespace models
 {
     public class Player
     {
-        public GameObject player;
         public string Name { get; }
         public int StartY;
         public int FinishY;
@@ -15,9 +14,8 @@ namespace models
         public GameObject BlocksCountField;
         public GameObject BlocksUseButton;
 
-        public Player(GameObject player, int startY, int finishY, int currentX, int currentY, int blocksCount, string name)
+        public Player(int startY, int finishY, int currentX, int currentY, int blocksCount, string name)
         {
-            this.player = player;
             CurrentX = currentX;
             CurrentY = currentY;
             FinishY = finishY;
