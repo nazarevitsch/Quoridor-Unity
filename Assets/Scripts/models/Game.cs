@@ -75,7 +75,6 @@ namespace models
             {
                 ChangePlayers();
             }
-
             OnPlayersChanged?.Invoke(CurrentPlayer, EnemyPlayer);
             OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
         }

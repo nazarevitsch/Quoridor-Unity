@@ -17,7 +17,13 @@ namespace Controllers
                 textField.GetComponent<Text>().text = isInUse ? "STOP" : "USE";
             }
         }
-    
+
+        public void ChangeTextToFalse()
+        {
+            isInUse = false;
+            textField.GetComponent<Text>().text = "USE";
+        }
+
         public void ChangePauseState()
         {
             isPaused = !isPaused;

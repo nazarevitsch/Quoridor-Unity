@@ -91,7 +91,7 @@ namespace views
         {
             currentPlayer.BlocksCountField.GetComponent<Text>().text = currentPlayer.Name + ": " + currentPlayer.BlocksCount;
             enemyPlayer.BlocksCountField.GetComponent<Text>().text = enemyPlayer.Name + ": " + enemyPlayer.BlocksCount;
-            enemyPlayer.BlocksUseButton.GetComponent<ButtonHandler>().ChangeText();
+            currentPlayer.BlocksUseButton.GetComponent<ButtonHandler>().ChangeTextToFalse();
             if (currentPlayer.BlocksCount > 0)
             {
                 currentPlayer.BlocksUseButton.SetActive(true);
