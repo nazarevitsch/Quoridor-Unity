@@ -44,7 +44,6 @@ namespace store
                     }
                 }
             }
-
             return res.ToArray();
         }
     }

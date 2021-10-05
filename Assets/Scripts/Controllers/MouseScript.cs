@@ -28,18 +28,23 @@ namespace Controllers
                     RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
                     if (hit.collider != null)
                     {
+                        
                         var gameObj = hit.collider.gameObject;
                         var cs = gameObj.GetComponent<CoordinateScript>();
                         var point = _game.Points[cs.Y][cs.X];
+                        Debug.Log("Click: " + point.Tag);
                         switch (point.Tag)
                         {
                             case "Unblocked":
+                                Debug.Log("Mouse 2");
+                                _game.PutBlock(point);
+                                break;
                             case "PossibleToBlock":
+                                Debug.Log("Mouse 1");
                                 _game.PutBlock(point);
                                 break;
                             case "Possible":
                             {
-                                // Maybe its better to move on Views side
                                 var destination = gameObj.transform.position;
                                 _objStore.PlayerObjects[_game.CurrentPlayer.Name].transform.position = destination;
                                 _game.DoStep(point);

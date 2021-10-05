@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using store;
 using UnityEngine;
 
 namespace models
@@ -9,20 +11,28 @@ namespace models
         public bool withPc;
         public bool isPaused;
         private bool hasWay;
+        
+        private UnityObjStore _objStore;
 
         public Player CurrentPlayer { get; private set; }
         public Player EnemyPlayer { get; private set; }
-    
+
         public Point[][] Points { get; private set; }
-    
+
         public bool putBlock;
         public bool firstBlockWasPut;
-    
+
         public delegate void RenderWalls(bool blocked);
-        public delegate void ChangePossiblePlatforms(Player currentPlayer, Player opponent, Point [][] points, bool destroyed);
+
+        public delegate void ChangePossiblePlatforms(Player currentPlayer, Player opponent, Point[][] points,
+            bool destroyed);
+
         public delegate void EndGame(string text);
-        public delegate void StartGameE(Player curPlayer, Player opponent, Point [][] points);
+
+        public delegate void StartGameE(Player curPlayer, Player opponent, Point[][] points);
+
         public delegate void PointTagChanged(string tag, int x, int y);
+
         public delegate void PlayersChanged(Player currentPlayer, Player opponent);
 
         public event RenderWalls OnRenderWalls;
@@ -31,12 +41,11 @@ namespace models
         public event StartGameE OnStartGame;
         public event PointTagChanged OnPointTagChanged;
         public event PlayersChanged OnPlayersChanged;
-    
+
         private void Awake()
         {
-            putBlock = false;
-            firstBlockWasPut = false;
-            hasWay = false;
+            putBlock = firstBlockWasPut = hasWay = false;
+            _objStore = FindObjectOfType<UnityObjStore>();
         }
 
         public void PlayWithPC()
@@ -44,25 +53,36 @@ namespace models
             withPc = true;
             StartGame();
         }
-    
+
         public void PlayWithFriend()
         {
             withPc = false;
             StartGame();
         }
-    
+
         public void DoStep(Point point)
         {
             CurrentPlayer.CurrentY = point.Y;
             CurrentPlayer.CurrentX = point.X;
             OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, true);
             if (CheckWin(CurrentPlayer)) return;
-            ChangePlayers();
+            if (withPc)
+            {
+                BotStep();
+                if (CheckWin(EnemyPlayer)) return;
+            }
+            else
+            {
+                ChangePlayers();
+            }
+
             OnPlayersChanged?.Invoke(CurrentPlayer, EnemyPlayer);
             OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
         }
+
         public void PutBlock(Point point)
         {
+            Debug.Log("Game: " + putBlock + ", F: " + firstBlockWasPut);
             if (putBlock && CurrentPlayer.BlocksCount > 0)
             {
                 if (firstBlockWasPut)
@@ -72,7 +92,7 @@ namespace models
                         point.Tag = "Blocked";
                         OnPointTagChanged?.Invoke("Blocked", point.X, point.Y);
                         CurrentPlayer.BlocksCount -= 1;
-                        OnRenderWalls?.Invoke(true);  //ChangeWalls() -> blocked;
+                        OnRenderWalls?.Invoke(true);
                         ChangePlayers();
                         OnPlayersChanged?.Invoke(CurrentPlayer, EnemyPlayer);
                         OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
@@ -96,6 +116,7 @@ namespace models
                                 flag = true;
                             }
                         }
+
                         if (point.Y < 16)
                         {
                             if (Points[point.Y + 2][point.X].Tag == "Unblocked"
@@ -110,7 +131,7 @@ namespace models
                     }
                     else
                     {
-                        if (point.X > 0 && Points[point.Y ][point.X - 2].Tag == "Unblocked"
+                        if (point.X > 0 && Points[point.Y][point.X - 2].Tag == "Unblocked"
                                         && Points[point.Y + 1][point.X - 1].Tag == "Unblocked"
                                         && Points[point.Y - 1][point.X - 1].Tag == "Unblocked")
                         {
@@ -118,7 +139,8 @@ namespace models
                             OnPointTagChanged?.Invoke("PossibleToBlock", point.X - 2, point.Y);
                             flag = true;
                         }
-                        if (point.X < 16 && Points[point.Y ][point.X + 2].Tag == "Unblocked"
+
+                        if (point.X < 16 && Points[point.Y][point.X + 2].Tag == "Unblocked"
                                          && Points[point.Y + 1][point.X + 1].Tag == "Unblocked"
                                          && Points[point.Y - 1][point.X + 1].Tag == "Unblocked")
                         {
@@ -127,6 +149,7 @@ namespace models
                             flag = true;
                         }
                     }
+
                     if (flag)
                     {
                         point.Tag = "HalfBlocked";
@@ -138,7 +161,7 @@ namespace models
                         {
                             firstBlockWasPut = true;
                             OnPointTagChanged?.Invoke("HalfBlocked", point.X, point.Y);
-                            OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, true);   
+                            OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, true);
                         }
                         else
                         {
@@ -159,13 +182,13 @@ namespace models
             OnStartGame?.Invoke(CurrentPlayer, EnemyPlayer, Points);
             OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
         }
-    
+
         private void SpawnPlayers()
         {
-            CurrentPlayer = new Player( 16, 0, 8, 16, 9, "Player 1");
-            EnemyPlayer = new Player( 0, 16, 8, 4, 9, "Player 2");
+            CurrentPlayer = new Player(16, 0, 8, 16, 9, "Player 1");
+            EnemyPlayer = new Player(0, 16, 8, 4, 9, "Player 2");
         }
-    
+
         private Point[][] GenerateDesk()
         {
             var points = new Point[17][];
@@ -179,7 +202,7 @@ namespace models
                         points[i][j * 2] = new Point(j * 2, i, "Platform");
                         if (j != 8)
                         {
-                            points[i][j * 2 + 1] = new Point(j * 2 + 1  ,i, "Unblocked");
+                            points[i][j * 2 + 1] = new Point(j * 2 + 1, i, "Unblocked");
                         }
                     }
                 }
@@ -187,19 +210,18 @@ namespace models
                 {
                     for (int j = 0; j < 9; j++)
                     {
-                        points[i][j * 2] = new Point(j * 2 , i, "Unblocked");
+                        points[i][j * 2] = new Point(j * 2, i, "Unblocked");
                     }
                 }
             }
-
             return points;
         }
-    
+
         public void RestartGame()
         {
             OnEndGame?.Invoke("Nobody - WON");
         }
-    
+
         public List<Point> FindPossiblePlatforms(Player player, Player opponent, Point[][] points)
         {
             List<Point> list = new List<Point>();
@@ -223,6 +245,7 @@ namespace models
                     }
                 }
             }
+
             if (player.CurrentY < 16)
             {
                 if (points[player.CurrentY + 1][player.CurrentX].Tag == "Unblocked")
@@ -243,6 +266,7 @@ namespace models
                     }
                 }
             }
+
             if (player.CurrentX > 0)
             {
                 if (points[player.CurrentY][player.CurrentX - 1].Tag == "Unblocked")
@@ -263,6 +287,7 @@ namespace models
                     }
                 }
             }
+
             if (player.CurrentX < 16)
             {
                 if (points[player.CurrentY][player.CurrentX + 1].Tag == "Unblocked")
@@ -283,9 +308,10 @@ namespace models
                     }
                 }
             }
+
             return list;
         }
-    
+
         private List<Point> FindPossiblePlatformsForWay(Player player, Point[][] points)
         {
             List<Point> list = new List<Point>();
@@ -298,14 +324,16 @@ namespace models
 
                 }
             }
+
             if (player.CurrentY < 16)
             {
                 if (points[player.CurrentY + 1][player.CurrentX].Tag == "Unblocked")
                 {
                     list.Add(points[player.CurrentY + 2][player.CurrentX]);
-                
+
                 }
             }
+
             if (player.CurrentX > 0)
             {
                 if (points[player.CurrentY][player.CurrentX - 1].Tag == "Unblocked")
@@ -313,6 +341,7 @@ namespace models
                     list.Add(points[player.CurrentY][player.CurrentX - 2]);
                 }
             }
+
             if (player.CurrentX < 16)
             {
                 if (points[player.CurrentY][player.CurrentX + 1].Tag == "Unblocked")
@@ -331,14 +360,16 @@ namespace models
                 OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
                 return true;
             }
+
             if (player.StartY == 16 && player.CurrentY == 0)
             {
                 OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
                 return true;
             }
+
             return false;
         }
-    
+
         public void ChangePuttBlockState()
         {
             if (!isPaused)
@@ -363,7 +394,7 @@ namespace models
         {
             Player p = CurrentPlayer;
             CurrentPlayer = EnemyPlayer;
-            EnemyPlayer = p;  
+            EnemyPlayer = p;
         }
 
         private void Clean()
@@ -391,6 +422,7 @@ namespace models
                 hasWay = true;
                 return;
             }
+
             Player temporalPLayer = new Player(player.StartY, player.FinishY, player.CurrentX,
                 player.CurrentY, player.BlocksCount, player.Name);
             Point currentPoint = Points[player.CurrentY][player.CurrentX];
@@ -421,8 +453,16 @@ namespace models
                     }
                 }
             }
-
             return res.ToArray();
+        }
+
+        private void BotStep()
+        {
+            List<Point> platforms = FindPossiblePlatforms(EnemyPlayer, CurrentPlayer, Points);
+            Point destinationPoint  = platforms.ElementAt(Random.Range(0, platforms.Count));
+            EnemyPlayer.CurrentX = destinationPoint.X;
+            EnemyPlayer.CurrentY = destinationPoint.Y;
+            _objStore.PlayerObjects[EnemyPlayer.Name].transform.position = _objStore.PointGameObjects[destinationPoint.Y][destinationPoint.X].transform.position;
         }
     }
 }

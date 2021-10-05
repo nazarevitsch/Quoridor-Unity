@@ -50,6 +50,7 @@ public class MapGenerator : MonoBehaviour
                     cs.X = j * 2; cs.Y = i;
                     gameObj.GetComponent<SpriteRenderer>().color = Color.black;
                     objStore.AddPoint(j * 2, i, gameObj);
+                    Debug.Log("PL: Y: " + i + ", X: " + (j * 2));
                     if (j != 8)
                     {
                         spawnPosition.x += 0.3f;
@@ -57,6 +58,7 @@ public class MapGenerator : MonoBehaviour
                         cs = gameObj.GetComponent<CoordinateScript>();
                         cs.X = j * 2 + 1; cs.Y = i;
                         objStore.AddPoint(j * 2 + 1, i, gameObj);
+                        Debug.Log("W: Y: " + i + ", X: " + (j * 2 + 1));
                     }
                 }
                 spawnPosition.x = -6f;
@@ -71,6 +73,7 @@ public class MapGenerator : MonoBehaviour
                     var cs = gameObj.GetComponent<CoordinateScript>();
                     cs.X = j * 2; cs.Y = i;
                     objStore.AddPoint(j * 2, i, gameObj);
+                    Debug.Log("W: Y: " + i + ", X: " + (j * 2));
                     spawnPosition.x += 0.3f;
                 }
                 spawnPosition.x = -6f;
