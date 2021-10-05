@@ -81,7 +81,6 @@ namespace models
 
         public void PutBlock(Point point)
         {
-            Debug.Log("Game: " + putBlock + ", F: " + firstBlockWasPut);
             if (putBlock && CurrentPlayer.BlocksCount > 0)
             {
                 if (firstBlockWasPut)
@@ -92,11 +91,17 @@ namespace models
                         OnPointTagChanged?.Invoke("Blocked", point.X, point.Y);
                         CurrentPlayer.BlocksCount -= 1;
                         OnRenderWalls?.Invoke(true);
-                        ChangePlayers();
+                        if (withPc)
+                        {
+                            BotStep();
+                        }
+                        else
+                        {
+                            ChangePlayers();
+                        }
                         OnPlayersChanged?.Invoke(CurrentPlayer, EnemyPlayer);
                         OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
-                        firstBlockWasPut = false;
-                        putBlock = false;
+                        firstBlockWasPut = putBlock = false;
                     }
                 }
                 else

@@ -32,15 +32,12 @@ namespace Controllers
                         var gameObj = hit.collider.gameObject;
                         var cs = gameObj.GetComponent<CoordinateScript>();
                         var point = _game.Points[cs.Y][cs.X];
-                        Debug.Log("Click: " + point.Tag);
                         switch (point.Tag)
                         {
                             case "Unblocked":
-                                Debug.Log("Mouse 2");
                                 _game.PutBlock(point);
                                 break;
                             case "PossibleToBlock":
-                                Debug.Log("Mouse 1");
                                 _game.PutBlock(point);
                                 break;
                             case "Possible":
