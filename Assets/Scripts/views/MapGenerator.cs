@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using models;
+﻿using models;
 using store;
 using UnityEngine;
 using UnityEngine.UI;
 using Color = UnityEngine.Color;
-using Point = models.Point;
 
 public class MapGenerator : MonoBehaviour
 {
