@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using store;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace models
 {
@@ -190,7 +192,7 @@ namespace models
         private void SpawnPlayers()
         {
             CurrentPlayer = new Player(16, 0, 8, 16, 9, "Player 1");
-            EnemyPlayer = new Player(0, 16, 8, 4, 9, "Player 2");
+            EnemyPlayer = new Player(0, 16, 8, 0, 9, "Player 2");
         }
 
         private Point[][] GenerateDesk()
@@ -359,18 +361,11 @@ namespace models
 
         private bool CheckWin(Player player)
         {
-            if (player.StartY == 0 && player.CurrentY == 16)
+            if (player.CurrentY == player.FinishY)
             {
-                OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
+                OnEndGame?.Invoke(player.Name + " - WON");
                 return true;
             }
-
-            if (player.StartY == 16 && player.CurrentY == 0)
-            {
-                OnEndGame?.Invoke(CurrentPlayer.Name + " - WON");
-                return true;
-            }
-
             return false;
         }
 
@@ -463,10 +458,30 @@ namespace models
         private void BotStep()
         {
             List<Point> platforms = FindPossiblePlatforms(EnemyPlayer, CurrentPlayer, Points);
-            Point destinationPoint  = platforms.ElementAt(Random.Range(0, platforms.Count));
+            Point destinationPoint = platforms.ElementAt(0);
+            int best = Math.Abs(EnemyPlayer.FinishY - destinationPoint.Y);
+            for (int i = 0; i < platforms.Count; i++)
+            {
+                if (best >= Math.Abs(EnemyPlayer.FinishY - platforms.ElementAt(i).Y))
+                {
+                    best = Math.Abs(EnemyPlayer.FinishY - platforms.ElementAt(i).Y);
+                    destinationPoint = platforms.ElementAt(i);
+                }
+            }
             EnemyPlayer.CurrentX = destinationPoint.X;
             EnemyPlayer.CurrentY = destinationPoint.Y;
             _objStore.PlayerObjects[EnemyPlayer.Name].transform.position = _objStore.PointGameObjects[destinationPoint.Y][destinationPoint.X].transform.position;
         }
+
+        // private void BotPutBlock()
+        // {
+        //     if (Points[CurrentPlayer.CurrentY + 1][CurrentPlayer.CurrentX].Tag.Equals("Unblocked"))
+        //     {
+        //         if (CurrentPlayer.CurrentX > 0)
+        //         {
+        //             
+        //         }
+        //     }
+        // }
     }
 }

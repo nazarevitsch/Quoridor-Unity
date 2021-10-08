@@ -105,7 +105,7 @@ public class MapGenerator : MonoBehaviour
         
         player.GetComponent<SpriteRenderer>().color = Color.cyan;
         
-        Vector3 positionPlayer2 = objStore.PointGameObjects[4][8].transform.position;
+        Vector3 positionPlayer2 = objStore.PointGameObjects[0][8].transform.position;
         playerObj = Instantiate(player, positionPlayer2, Quaternion.identity);
         objStore.AddPlayer("Player 2", playerObj);
         player2.BlocksCountField = blocksCount2;
