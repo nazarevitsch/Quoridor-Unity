@@ -70,7 +70,7 @@ namespace models
             if (CheckWin(CurrentPlayer)) return;
             if (withPc)
             {
-                BotStep();
+                BotMove();
                 if (CheckWin(EnemyPlayer)) return;
             }
             else
@@ -95,7 +95,7 @@ namespace models
                         OnRenderWalls?.Invoke(true);
                         if (withPc)
                         {
-                            BotStep();
+                            BotMove();
                         }
                         else
                         {
@@ -455,6 +455,21 @@ namespace models
             return res.ToArray();
         }
 
+        private void BotMove()
+        {
+            int choose = Random.Range(0, 10);
+            if (choose > 6)
+            {
+                if (!BotPutBlock())
+                {
+                    BotStep();
+                }
+            }
+            else
+            {
+                BotStep();
+            }
+        }
         private void BotStep()
         {
             List<Point> platforms = FindPossiblePlatforms(EnemyPlayer, CurrentPlayer, Points);
@@ -473,15 +488,45 @@ namespace models
             _objStore.PlayerObjects[EnemyPlayer.Name].transform.position = _objStore.PointGameObjects[destinationPoint.Y][destinationPoint.X].transform.position;
         }
 
-        // private void BotPutBlock()
-        // {
-        //     if (Points[CurrentPlayer.CurrentY + 1][CurrentPlayer.CurrentX].Tag.Equals("Unblocked"))
-        //     {
-        //         if (CurrentPlayer.CurrentX > 0)
-        //         {
-        //             
-        //         }
-        //     }
-        // }
+        private bool BotPutBlock()
+        {
+            if (Points[CurrentPlayer.CurrentY - 1][CurrentPlayer.CurrentX].Tag.Equals("Unblocked"))
+            {
+                int coordinateX = -1;
+                if (CurrentPlayer.CurrentX > 0 && Points[CurrentPlayer.CurrentY - 1][CurrentPlayer.CurrentX - 2].Tag.Equals("Unblocked"))
+                {
+                    coordinateX = CurrentPlayer.CurrentX - 2;
+                }
+                else
+                {
+                    if (CurrentPlayer.CurrentX < 16 && Points[CurrentPlayer.CurrentY - 1][CurrentPlayer.CurrentX + 2].Tag.Equals("Unblocked"))
+                    {
+                        coordinateX = CurrentPlayer.CurrentX + 2;
+                    }
+                }
+                if (coordinateX >= 0)
+                {
+                    Points[CurrentPlayer.CurrentY - 1][CurrentPlayer.CurrentX].Tag = "Blocked";
+                    Points[CurrentPlayer.CurrentY - 1][coordinateX].Tag = "Blocked";
+                    bool flag1 = HasWayToWin(CurrentPlayer);
+                    Clean();
+                    bool flag2 = HasWayToWin(EnemyPlayer);
+                    Clean();
+                    if (flag1 && flag2)
+                    {
+                        OnPointTagChanged?.Invoke("Blocked", CurrentPlayer.CurrentX, CurrentPlayer.CurrentY - 1);
+                        OnPointTagChanged?.Invoke("Blocked", coordinateX, CurrentPlayer.CurrentY - 1);
+                        return true;
+                    }
+                    else
+                    {
+                        Points[CurrentPlayer.CurrentY - 1][CurrentPlayer.CurrentX].Tag = "Unblocked";
+                        Points[CurrentPlayer.CurrentY - 1][coordinateX].Tag = "Unblocked";
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
