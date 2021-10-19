@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace models
+﻿namespace models
 {
     public class Point
     {
