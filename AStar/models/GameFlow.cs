@@ -23,8 +23,12 @@ namespace AStar.models
             var miniMax = new MiniMax<Point>(3)
                 .UseBuildTreeStrategy(() => new QuoridorBuildStrategy(Game, IsOutMoveFirst)); // This mean we are white
             miniMax.BuildTree(Game.Points, Game.CurrentPlayer.GetPosition());
-            var res = miniMax.FindBestNode();
-            return res.Value;
+            var move = res;
+            while (move.Parent != miniMax.Root)
+            {
+                move = move.Parent;
+            }
+            return move.Value;
         }
 
         private void MakeMove()
