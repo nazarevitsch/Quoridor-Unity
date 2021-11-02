@@ -19,7 +19,7 @@ namespace AStar.models.AI.MoveStrategies.BuildStrategies
             where TCoords : Coords, new()
         {
             return _game
-                .FindPossiblePlatformsForWay()
+                .FindPossiblePlatformsForWay(new Point{ X = coord.X, Y = coord.Y })
                 .Select(point => 
                 new TCoords
                 {
@@ -38,13 +38,13 @@ namespace AStar.models.AI.MoveStrategies.BuildStrategies
                 0, 2, 4, 6, 8, 10, 12, 14, 16 
             //  a, b, c, d, e, f,  g,  h,  i
             };
-
+            var Y = _moveUp ? 0 : 16; // first or last row
             return xs.Select(X =>
             {
                 return aStar.Resolve(coordsArray, coord, new TCoords
                 {
                     X = X,
-                    Y = _moveUp ? 0 : 16 // first or last row
+                    Y = Y 
                 }).Count;
             }
             ).Min();

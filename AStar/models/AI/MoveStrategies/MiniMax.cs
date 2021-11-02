@@ -38,13 +38,13 @@ namespace AStar.models.AI.MoveStrategies
         private void BuildTree(MiniMaxNode<TCoords> parent, TCoords[][] coordsArray, TCoords point, int depth)
         {
             var children = BuildStrategy.FindCoordsFroBuildingNodes(coordsArray, point);
-            foreach (var child in children)
+            foreach (var child in children.Where(c => c != point))
             {
                 var node = new MiniMaxNode<TCoords>
                 {
                     Parent = parent,
                     NodeType = parent.NodeType == NodeType.Min ? NodeType.Max : NodeType.Min,
-                    H = BuildStrategy.H(coordsArray, point),
+                    H = BuildStrategy.H(coordsArray, child),
                     Value = child
                 };
                 parent.Children.Add(node);
@@ -58,7 +58,10 @@ namespace AStar.models.AI.MoveStrategies
 
         public void BuildTree(TCoords[][] coordsArray, TCoords playerPos)
         {
-            Root = new MiniMaxNode<TCoords>();
+            Root = new MiniMaxNode<TCoords>
+            {
+                NodeType = NodeType.Max
+            };
             BuildTree(Root, coordsArray, playerPos, 1);
         }
 

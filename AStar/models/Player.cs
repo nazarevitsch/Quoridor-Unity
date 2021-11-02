@@ -19,6 +19,12 @@
             Name = name;
         }
 
+        public Player(int curX, int curY)
+        {
+            CurrentX = curX;
+            CurrentY = curY;
+        }
+        
         public Point GetPosition()
         {
             return new Point

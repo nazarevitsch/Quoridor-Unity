@@ -336,9 +336,9 @@ namespace AStar.models
             return list;
         }
 
-        public List<Point> FindPossiblePlatformsForWay()
+        public List<Point> FindPossiblePlatformsForWay(Point point)
         {
-            return FindPossiblePlatformsForWay(CurrentPlayer, Points);
+            return FindPossiblePlatformsForWay(new Player(point.X, point.Y), Points);
         }
         
         private List<Point> FindPossiblePlatformsForWay(Player player, Point[][] points)

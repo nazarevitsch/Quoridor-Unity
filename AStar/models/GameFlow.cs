@@ -5,6 +5,7 @@ using AStar.models.AI.MoveStrategies;
 using AStar.models.AI.MoveStrategies.BuildStrategies;
 namespace AStar.models
 {
+    
     public class GameFlow
     {
         private bool IsOutMoveFirst { get; set; } = false;
@@ -18,11 +19,12 @@ namespace AStar.models
         {
             Controllers[cmd] = controller;
         }
-        private Point FindBestMove()
+        public Point FindBestMove()
         {
             var miniMax = new MiniMax<Point>(3)
                 .UseBuildTreeStrategy(() => new QuoridorBuildStrategy(Game, IsOutMoveFirst)); // This mean we are white
             miniMax.BuildTree(Game.Points, Game.CurrentPlayer.GetPosition());
+            var res = miniMax.FindBestNode();
             var move = res;
             while (move.Parent != miniMax.Root)
             {
