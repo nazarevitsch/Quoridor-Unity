@@ -26,7 +26,7 @@ namespace AStar.models
         
         public override string ToString()
         {
-            return "";
+            return $"Point(X={X}, Y={Y})";
         }
     }
 }

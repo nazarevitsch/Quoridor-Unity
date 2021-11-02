@@ -14,7 +14,6 @@ namespace AStar.models
         public bool IsGameOver => CheckWin(CurrentPlayer) || CheckWin(EnemyPlayer);
         public Player CurrentPlayer { get; private set; }
         public Player EnemyPlayer { get; private set; }
-
         public Point[][] Points { get; private set; }
 
         public bool putBlock;
@@ -39,7 +38,6 @@ namespace AStar.models
         public event StartGameE OnStartGame;
         public event PointTagChanged OnPointTagChanged;
         public event PlayersChanged OnPlayersChanged;
-
 
         public void PlayWithPC()
         {
@@ -74,6 +72,10 @@ namespace AStar.models
 
         public void PlaceWall(Wall wall)
         {
+            if (!putBlock)
+            {
+                ChangePuttBlockState();
+            }
             if (wall.WallType == WallType.Horizontal)
             {
                 PutBlock(new Point

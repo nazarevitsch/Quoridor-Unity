@@ -37,7 +37,6 @@ namespace AStar
         {
             Console.WriteLine(string.Join("=>", path.Select(node => $"[{node.X}, {node.Y}]")));
         }
-        
         static void Main(string[] args)
         {
             var game = new Game();

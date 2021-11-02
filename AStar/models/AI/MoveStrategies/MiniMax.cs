@@ -60,7 +60,8 @@ namespace AStar.models.AI.MoveStrategies
         {
             Root = new MiniMaxNode<TCoords>
             {
-                NodeType = NodeType.Max
+                NodeType = NodeType.Max,
+                Value = playerPos
             };
             BuildTree(Root, coordsArray, playerPos, 1);
         }

@@ -36,10 +36,26 @@ namespace AStar.models
         private void MakeMove()
         {
             var move = FindBestMove();
-            Game.DoStep(move);
+            Console.WriteLine($"// Get Point: {move}");
             Console.WriteLine($"// MakeMove: {new Move(move).AsString}");
-            Console.WriteLine("move " + new Move(move).AsString);
+            if (IsJump(move))
+            {
+                Console.WriteLine("// Jump");
+                Console.WriteLine("jump " + new Move(move).AsString);
+                Game.DoStep(move);
+            }
+            else
+            {
+                Game.DoStep(move);
+                Console.WriteLine("move " + new Move(move).AsString);
+            }
         }
+
+        private bool IsJump(Point point)
+        {
+            return Math.Abs(point.X - Game.CurrentPlayer.CurrentX) == 4 ||
+                   Math.Abs(point.Y - Game.CurrentPlayer.CurrentY) == 4;
+        } 
         public void StartGame()
         {
             Game.PlayWithFriend();

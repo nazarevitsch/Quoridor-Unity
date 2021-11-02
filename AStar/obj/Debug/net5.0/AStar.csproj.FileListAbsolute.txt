@@ -1,0 +1,16 @@
+C:\Users\Sasha\RiderProjects\AStar\AStar\bin\Debug\net5.0\AStar.exe
+C:\Users\Sasha\RiderProjects\AStar\AStar\bin\Debug\net5.0\AStar.deps.json
+C:\Users\Sasha\RiderProjects\AStar\AStar\bin\Debug\net5.0\AStar.runtimeconfig.json
+C:\Users\Sasha\RiderProjects\AStar\AStar\bin\Debug\net5.0\AStar.runtimeconfig.dev.json
+C:\Users\Sasha\RiderProjects\AStar\AStar\bin\Debug\net5.0\AStar.dll
+C:\Users\Sasha\RiderProjects\AStar\AStar\bin\Debug\net5.0\ref\AStar.dll
+C:\Users\Sasha\RiderProjects\AStar\AStar\bin\Debug\net5.0\AStar.pdb
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.csprojAssemblyReference.cache
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.AssemblyInfoInputs.cache
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.AssemblyInfo.cs
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.csproj.CoreCompileInputs.cache
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.dll
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\ref\AStar.dll
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.pdb
+C:\Users\Sasha\RiderProjects\AStar\AStar\obj\Debug\net5.0\AStar.genruntimeconfig.cache
