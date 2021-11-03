@@ -45,5 +45,19 @@ namespace AITests
             move = GameFlow.FindBestMove();
             Assert.That(() => move.X == 8 && move.Y == 6);
         }
+        
+        [Test]
+        public void WallFromString()
+        {
+            var wall = new Wall("u1v");
+            Assert.That(() => wall.Point.X == 5 && wall.Point.Y == 1 && wall.WallType == WallType.Vertical);
+        }
+
+        [Test]
+        public void PlaceWallTest()
+        {
+            Game.PlaceWall(new Wall("u1v"));
+            Assert.True(true);
+        }
     }
 }

@@ -85,7 +85,7 @@ namespace AStar.models
                 });
                 PutBlock(new Point
                 {
-                    X = wall.Point.X,
+                    X = wall.Point.X + 1,
                     Y = wall.Point.Y
                 });
             }
@@ -99,7 +99,7 @@ namespace AStar.models
                 PutBlock(new Point
                 {
                     X = wall.Point.X,
-                    Y = wall.Point.Y
+                    Y = wall.Point.Y + 1
                 });
             }
         }
