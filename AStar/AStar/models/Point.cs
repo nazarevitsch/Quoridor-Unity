@@ -26,7 +26,7 @@ namespace AStar.models
         
         public override string ToString()
         {
-            return $"Point(X={X}, Y={Y})";
+            return $"Point(X={X}, Y={Y}, str={new Move(this).AsString})";
         }
     }
 }

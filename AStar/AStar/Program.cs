@@ -4,6 +4,7 @@ using System.Linq;
 using AStar.Controllers;
 using AStar.models;
 using AStar.models.AI.PathFinder;
+using AStar.models.IO;
 
 namespace AStar
 {
@@ -40,7 +41,7 @@ namespace AStar
         static void Main(string[] args)
         {
             var game = new Game();
-            var gameFlow = new GameFlow(game);
+            var gameFlow = new GameFlow(game, new ConsoleReader());
             Console.WriteLine("// Start game");
             gameFlow.RegisterController("move", new MoveController(game));
             gameFlow.RegisterController("wall", new WallController(game));

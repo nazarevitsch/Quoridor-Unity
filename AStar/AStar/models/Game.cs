@@ -70,7 +70,7 @@ namespace AStar.models
             OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
         }
 
-        public void PlaceWall(Wall wall)
+        public void PlaceWall(Wall wall, bool forceFirstBlockPut = false, bool forceSecondBlockPut = false)
         {
             if (!putBlock)
             {
@@ -78,18 +78,22 @@ namespace AStar.models
             }
             if (wall.WallType == WallType.Horizontal)
             {
-                PutBlock(Points[wall.Point.Y][wall.Point.X - 1]);
-                PutBlock(Points[wall.Point.Y][wall.Point.X + 1]);
+                PutBlock(Points[wall.Point.Y][wall.Point.X - 1], forceFirstBlockPut);
+                PutBlock(Points[wall.Point.Y][wall.Point.X + 1], forceSecondBlockPut);
             }
             else
             {
-                PutBlock(Points[wall.Point.Y - 1][wall.Point.X]);
-                PutBlock(Points[wall.Point.Y + 1][wall.Point.X]);
+                PutBlock(Points[wall.Point.Y - 1][wall.Point.X], forceFirstBlockPut);
+                PutBlock(Points[wall.Point.Y + 1][wall.Point.X], forceSecondBlockPut);
             }
         }
 
-        public void PutBlock(Point point)
+        public void PutBlock(Point point, bool forceFirstBlockPut = false, bool forceSecondBlockPut = false)
         {
+            if (forceSecondBlockPut && !firstBlockWasPut)
+            {
+                firstBlockWasPut = true;
+            }
             if (putBlock && CurrentPlayer.BlocksCount > 0)
             {
                 if (firstBlockWasPut)
@@ -170,7 +174,7 @@ namespace AStar.models
                         Clean();
                         bool flag2 = HasWayToWin(EnemyPlayer);
                         Clean();
-                        if (flag1 && flag2)
+                        if (flag1 && flag2 || forceFirstBlockPut)
                         {
                             firstBlockWasPut = true;
                             OnPointTagChanged?.Invoke("HalfBlocked", point.X, point.Y);
@@ -196,8 +200,8 @@ namespace AStar.models
         }
         private void SpawnPlayers()
         {
-            CurrentPlayer = new Player(16, 0, 8, 16, 9, "Player 1"); // White
-            EnemyPlayer = new Player(0, 16, 8, 0, 9, "Player 2"); // Black
+            CurrentPlayer = new Player(16, 0, 8, 16, 9, "White"); // White
+            EnemyPlayer = new Player(0, 16, 8, 0, 9, "Black"); // Black
         }
         private Point[][] GenerateDesk()
         {

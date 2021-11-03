@@ -68,6 +68,7 @@ namespace AStar.models
 
         public Wall(string wallString)
         {
+            wallString = wallString.ToLower();
             Point = new Point
             {
                 X = FromCharToIntMapX[wallString[0]],
