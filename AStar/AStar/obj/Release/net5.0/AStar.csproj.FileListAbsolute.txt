@@ -1,0 +1,16 @@
+D:\Work\quoridor_ai\AStar\AStar\bin\Release\net5.0\AStar.exe
+D:\Work\quoridor_ai\AStar\AStar\bin\Release\net5.0\AStar.deps.json
+D:\Work\quoridor_ai\AStar\AStar\bin\Release\net5.0\AStar.runtimeconfig.json
+D:\Work\quoridor_ai\AStar\AStar\bin\Release\net5.0\AStar.runtimeconfig.dev.json
+D:\Work\quoridor_ai\AStar\AStar\bin\Release\net5.0\AStar.dll
+D:\Work\quoridor_ai\AStar\AStar\bin\Release\net5.0\ref\AStar.dll
+D:\Work\quoridor_ai\AStar\AStar\bin\Release\net5.0\AStar.pdb
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.csprojAssemblyReference.cache
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.GeneratedMSBuildEditorConfig.editorconfig
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.AssemblyInfoInputs.cache
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.AssemblyInfo.cs
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.csproj.CoreCompileInputs.cache
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.dll
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\ref\AStar.dll
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.pdb
+D:\Work\quoridor_ai\AStar\AStar\obj\Release\net5.0\AStar.genruntimeconfig.cache
