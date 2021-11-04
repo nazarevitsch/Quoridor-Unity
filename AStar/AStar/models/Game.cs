@@ -24,6 +24,8 @@ namespace AStar.models
         public delegate void ChangePossiblePlatforms(Player currentPlayer, Player opponent, Point[][] points,
             bool destroyed);
 
+        public delegate void WallPlaced(Wall wall);
+        
         public delegate void EndGame(string text);
 
         public delegate void StartGameE(Player curPlayer, Player opponent, Point[][] points);
@@ -38,6 +40,7 @@ namespace AStar.models
         public event StartGameE OnStartGame;
         public event PointTagChanged OnPointTagChanged;
         public event PlayersChanged OnPlayersChanged;
+        public event WallPlaced OnWallPlaced;
 
         public void PlayWithPC()
         {
@@ -78,14 +81,22 @@ namespace AStar.models
             }
             if (wall.WallType == WallType.Horizontal)
             {
-                PutBlock(Points[wall.Point.Y][wall.Point.X - 1], forceFirstBlockPut);
-                PutBlock(Points[wall.Point.Y][wall.Point.X + 1], forceSecondBlockPut);
+                PutBlockForce(Points[wall.Point.Y][wall.Point.X - 1], "HalfBlocked");
+                PutBlockForce(Points[wall.Point.Y][wall.Point.X + 1]);
+                ChangePlayers();
             }
             else
             {
-                PutBlock(Points[wall.Point.Y - 1][wall.Point.X], forceFirstBlockPut);
-                PutBlock(Points[wall.Point.Y + 1][wall.Point.X], forceSecondBlockPut);
+                PutBlockForce(Points[wall.Point.Y - 1][wall.Point.X], "HalfBlocked");
+                PutBlockForce(Points[wall.Point.Y + 1][wall.Point.X]);
+                ChangePlayers();
             }
+            OnWallPlaced?.Invoke(wall);
+        }
+
+        public void PutBlockForce(Point point, string tag = "Blocked")
+        {
+            point.Tag = tag;
         }
 
         public void PutBlock(Point point, bool forceFirstBlockPut = false, bool forceSecondBlockPut = false)

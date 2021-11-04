@@ -202,59 +202,145 @@ namespace AITests
 
         [Test]
         /*
-        2021-11-04 01:54:09.4137|INFO|Logger|// Start game
-        2021-11-04 01:54:09.4137|INFO|Logger|// GOT white
-        2021-11-04 01:54:09.4629|INFO|Logger|// Get Point: Point(X=8, Y=14, str=e8)
-        2021-11-04 01:54:09.4629|INFO|Logger|// MakeMove: e8, Current Player: White
-        2021-11-04 01:54:09.4629|INFO|Logger|<- move e8
-        2021-11-04 01:54:09.5889|INFO|Logger|-> move E2
-        2021-11-04 01:54:09.5889|INFO|Logger|// Game loop: Got command move E2
-        2021-11-04 01:54:09.5889|INFO|Logger|// MoveController: Got move E2
-        2021-11-04 01:54:09.6436|INFO|Logger|// Get Point: Point(X=8, Y=12, str=e7)
-        2021-11-04 01:54:09.6436|INFO|Logger|// MakeMove: e7, Current Player: White
-        2021-11-04 01:54:09.6436|INFO|Logger|<- move e7
-        2021-11-04 01:54:09.7512|INFO|Logger|-> move E3
-        2021-11-04 01:54:09.7512|INFO|Logger|// Game loop: Got command move E3
-        2021-11-04 01:54:09.7517|INFO|Logger|// MoveController: Got move E3
-        2021-11-04 01:54:09.7775|INFO|Logger|// Get Point: Point(X=8, Y=10, str=e6)
-        2021-11-04 01:54:09.7775|INFO|Logger|// MakeMove: e6, Current Player: White
-        2021-11-04 01:54:09.7775|INFO|Logger|<- move e6
-        2021-11-04 01:54:09.8523|INFO|Logger|-> move E4
-        2021-11-04 01:54:09.8523|INFO|Logger|// Game loop: Got command move E4
-        2021-11-04 01:54:09.8523|INFO|Logger|// MoveController: Got move E4
-        2021-11-04 01:54:09.8795|INFO|Logger|// Get Point: Point(X=8, Y=8, str=e5)
-        2021-11-04 01:54:09.8795|INFO|Logger|// MakeMove: e5, Current Player: White
-        2021-11-04 01:54:09.8795|INFO|Logger|<- move e5
-        2021-11-04 01:54:09.9529|INFO|Logger|-> jump E6
-        2021-11-04 01:54:09.9547|INFO|Logger|// Game loop: Got command jump E6
-        2021-11-04 01:54:09.9547|INFO|Logger|// JumpController: Got jump E6
-        2021-11-04 01:54:09.9777|INFO|Logger|// Get Point: Point(X=8, Y=6, str=e4)
-        2021-11-04 01:54:09.9777|INFO|Logger|// MakeMove: e4, Current Player: White
-        2021-11-04 01:54:09.9777|INFO|Logger|<- move e4
-        2021-11-04 01:54:10.0441|INFO|Logger|-> wall W3h
-        2021-11-04 01:54:10.0441|INFO|Logger|// Game loop: Got command wall W3h
-        2021-11-04 01:54:10.0555|INFO|Logger|// Get Point: Point(X=6, Y=6, str=d4)
-        2021-11-04 01:54:10.0555|INFO|Logger|// MakeMove: d4, Current Player: White
-        2021-11-04 01:54:10.0555|INFO|Logger|<- move d4
-        2021-11-04 01:54:10.1089|INFO|Logger|-> move E7
-        2021-11-04 01:54:10.1089|INFO|Logger|// Game loop: Got command move E7
-        2021-11-04 01:54:10.1089|INFO|Logger|// MoveController: Got move E7
-        2021-11-04 01:54:10.1193|INFO|Logger|// Get Point: Point(X=4, Y=6, str=c4)
-        2021-11-04 01:54:10.1193|INFO|Logger|// MakeMove: c4, Current Player: White
-        2021-11-04 01:54:10.1193|INFO|Logger|<- move c4
-        2021-11-04 01:54:10.1571|INFO|Logger|-> wall W4h
-        2021-11-04 01:54:10.1578|INFO|Logger|// Game loop: Got command wall W4h
-        2021-11-04 01:54:10.1578|INFO|Logger|// Get Point: Point(X=4, Y=4, str=c3)
-        2021-11-04 01:54:10.1578|INFO|Logger|// MakeMove: c3, Current Player: White
-        2021-11-04 01:54:10.1578|INFO|Logger|<- move c3
-        2021-11-04 01:54:10.1992|INFO|Logger|-> wall V4v
-        2021-11-04 01:54:10.1992|INFO|Logger|// Game loop: Got command wall V4v
-        2021-11-04 01:54:10.2201|INFO|Logger|// Get Point: Point(X=6, Y=12, str=d7)
-        2021-11-04 01:54:10.2201|INFO|Logger|// MakeMove: d7, Current Player: Black
-        2021-11-04 01:54:10.2201|INFO|Logger|<- move d7
+         *  2021-11-04 13:10:01.8404|INFO|Logger|-> move E8
+            2021-11-04 13:10:01.8404|INFO|Logger|// Start game
+            2021-11-04 13:10:01.8404|INFO|Logger|// GOT black
+            2021-11-04 13:10:01.8457|INFO|Logger|// Game loop: Got command move E8
+            2021-11-04 13:10:01.8457|INFO|Logger|// MoveController: Got move E8
+            2021-11-04 13:10:01.9653|INFO|Logger|// Get Point: Point(X=8, Y=2, str=e2)
+            2021-11-04 13:10:01.9653|INFO|Logger|// MakeMove: e2, Current Player: Black
+            2021-11-04 13:10:01.9653|INFO|Logger|<- move e2
+            2021-11-04 13:10:02.1080|INFO|Logger|-> move E7
+            2021-11-04 13:10:02.1080|INFO|Logger|// Game loop: Got command move E7
+            2021-11-04 13:10:02.1123|INFO|Logger|// MoveController: Got move E7
+            2021-11-04 13:10:02.1524|INFO|Logger|// Get Point: Point(X=8, Y=4, str=e3)
+            2021-11-04 13:10:02.1524|INFO|Logger|// MakeMove: e3, Current Player: Black
+            2021-11-04 13:10:02.1524|INFO|Logger|<- move e3
+            2021-11-04 13:10:02.2881|INFO|Logger|-> move E6
+            2021-11-04 13:10:02.2881|INFO|Logger|// Game loop: Got command move E6
+            2021-11-04 13:10:02.2881|INFO|Logger|// MoveController: Got move E6
+            2021-11-04 13:10:02.3354|INFO|Logger|// Get Point: Point(X=8, Y=6, str=e4)
+            2021-11-04 13:10:02.3354|INFO|Logger|// MakeMove: e4, Current Player: Black
+            2021-11-04 13:10:02.3354|INFO|Logger|<- move e4
+            2021-11-04 13:10:02.4686|INFO|Logger|-> move E5
+            2021-11-04 13:10:02.4686|INFO|Logger|// Game loop: Got command move E5
+            2021-11-04 13:10:02.4704|INFO|Logger|// MoveController: Got move E5
+            2021-11-04 13:10:02.5111|INFO|Logger|// Get Point: Point(X=8, Y=8, str=e5)
+            2021-11-04 13:10:02.5111|INFO|Logger|// MakeMove: e5, Current Player: Black
+            2021-11-04 13:10:02.5111|INFO|Logger|// Jump
+            2021-11-04 13:10:02.5111|INFO|Logger|// Get point Point(X=8, Y=8, str=e5)
+            2021-11-04 13:10:02.5179|INFO|Logger|// Point(X=8, Y=10, str=e6)
+            2021-11-04 13:10:02.5179|INFO|Logger|<- jump e6
+            2021-11-04 13:10:02.6339|INFO|Logger|-> move E4
+            2021-11-04 13:10:02.6339|INFO|Logger|// Game loop: Got command move E4
+            2021-11-04 13:10:02.6339|INFO|Logger|// MoveController: Got move E4
+            2021-11-04 13:10:02.6579|INFO|Logger|// Get Point: Point(X=8, Y=12, str=e7)
+            2021-11-04 13:10:02.6579|INFO|Logger|// MakeMove: e7, Current Player: Black
+            2021-11-04 13:10:02.6579|INFO|Logger|<- move e7
+            2021-11-04 13:10:02.7590|INFO|Logger|-> move E3
+            2021-11-04 13:10:02.7590|INFO|Logger|// Game loop: Got command move E3
+            2021-11-04 13:10:02.7590|INFO|Logger|// MoveController: Got move E3
+            2021-11-04 13:10:02.7808|INFO|Logger|// Get Point: Point(X=8, Y=14, str=e8)
+            2021-11-04 13:10:02.7808|INFO|Logger|// MakeMove: e8, Current Player: Black
+            2021-11-04 13:10:02.7808|INFO|Logger|<- move e8
+            2021-11-04 13:10:02.8593|INFO|Logger|-> wall W3h
+            2021-11-04 13:10:02.8593|INFO|Logger|// Game loop: Got command wall W3h
+            2021-11-04 13:10:02.8809|INFO|Logger|// Get Point: Point(X=8, Y=12, str=e7)
+            2021-11-04 13:10:02.8809|INFO|Logger|// MakeMove: e7, Current Player: Black
+            2021-11-04 13:10:02.8809|INFO|Logger|<- move e7
+            2021-11-04 13:10:02.9567|INFO|Logger|-> move E2
+            2021-11-04 13:10:02.9567|INFO|Logger|// Game loop: Got command move E2
+            2021-11-04 13:10:02.9567|INFO|Logger|// MoveController: Got move E2
+            2021-11-04 13:10:02.9818|INFO|Logger|// Get Point: Point(X=8, Y=14, str=e8)
+            2021-11-04 13:10:02.9818|INFO|Logger|// MakeMove: e8, Current Player: Black
+            2021-11-04 13:10:02.9818|INFO|Logger|<- move e8
+            2021-11-04 13:10:03.0407|INFO|Logger|-> wall V3v
+            2021-11-04 13:10:03.0407|INFO|Logger|// Game loop: Got command wall V3v
+            2021-11-04 13:10:03.0712|INFO|Logger|// Get Point: Point(X=8, Y=4, str=e3)
+            2021-11-04 13:10:03.0712|INFO|Logger|// MakeMove: e3, Current Player: White
+            2021-11-04 13:10:03.0712|INFO|Logger|<- move e3
+            2021-11-04 13:10:03.0712|ERROR|Logger|Internal error occured:    at Quoridor.AiTester.QuoridorGameRunner.Play(ILogger logger, StreamWriter input, StreamReader output)
+   at IntroToGameDev.AiTester.SingleTestExecutor.Play(Process process)
          */
         public void FailedTest3Automatic()
         {
+            FakeIo.Write("black");
+            FakeIo.Write("move E8");
+            FakeIo.Write("move E7");
+            FakeIo.Write("move E6");
+            FakeIo.Write("move E5");
+            FakeIo.Write("move E4");
+            FakeIo.Write("move E3");
+            FakeIo.Write("wall W3h");
+            FakeIo.Write("move E3");
+            FakeIo.Write("wall V3v");
+            FakeIo.Write("STOP");
+            try
+            {
+                GameFlow.StartGame();
+            }
+            catch (Exception)
+            {
+                var move = new Move("e5");
+                Assert.False(false);
+            }
+        }
+
+        /*
+         *  2021-11-04 13:37:05.6842|INFO|Logger|-> wall U8v
+            2021-11-04 13:37:05.6842|INFO|Logger|// Start game
+            2021-11-04 13:37:05.6842|INFO|Logger|// GOT black
+            2021-11-04 13:37:05.6842|INFO|Logger|// Game loop: Got command wall U8v
+            2021-11-04 13:37:05.7876|INFO|Logger|// Get Point: Point(X=8, Y=2, str=e2)
+            2021-11-04 13:37:05.7876|INFO|Logger|// MakeMove: e2, Current Player: Black
+            2021-11-04 13:37:05.7876|INFO|Logger|<- move e2
+            2021-11-04 13:37:05.9126|INFO|Logger|-> move E8
+            2021-11-04 13:37:05.9126|INFO|Logger|// Game loop: Got command move E8
+            2021-11-04 13:37:05.9126|INFO|Logger|// MoveController: Got move E8
+            2021-11-04 13:37:05.9883|INFO|Logger|// Get Point: Point(X=8, Y=4, str=e3)
+            2021-11-04 13:37:05.9883|INFO|Logger|// MakeMove: e3, Current Player: Black
+            2021-11-04 13:37:05.9883|INFO|Logger|<- move e3
+            2021-11-04 13:37:06.1128|INFO|Logger|-> move E7
+            2021-11-04 13:37:06.1128|INFO|Logger|// Game loop: Got command move E7
+            2021-11-04 13:37:06.1128|INFO|Logger|// MoveController: Got move E7
+            2021-11-04 13:37:06.1564|INFO|Logger|// Get Point: Point(X=8, Y=6, str=e4)
+            2021-11-04 13:37:06.1564|INFO|Logger|// MakeMove: e4, Current Player: Black
+            2021-11-04 13:37:06.1564|INFO|Logger|<- move e4
+            2021-11-04 13:37:06.2806|INFO|Logger|-> move E6
+            2021-11-04 13:37:06.2806|INFO|Logger|// Game loop: Got command move E6
+            2021-11-04 13:37:06.2806|INFO|Logger|// MoveController: Got move E6
+            2021-11-04 13:37:06.3142|INFO|Logger|// Get Point: Point(X=8, Y=8, str=e5)
+            2021-11-04 13:37:06.3145|INFO|Logger|// MakeMove: e5, Current Player: Black
+            2021-11-04 13:37:06.3145|INFO|Logger|<- move e5
+            2021-11-04 13:37:06.4376|INFO|Logger|-> wall W6h
+            2021-11-04 13:37:06.4398|INFO|Logger|// Game loop: Got command wall W6h
+            2021-11-04 13:37:06.4654|INFO|Logger|// Get Point: Point(X=8, Y=10, str=e6)
+            2021-11-04 13:37:06.4654|INFO|Logger|// MakeMove: e6, Current Player: Black
+            2021-11-04 13:37:06.4654|INFO|Logger|// Jump
+            2021-11-04 13:37:06.4654|INFO|Logger|// Get point Point(X=8, Y=10, str=e6)
+            2021-11-04 13:37:06.4654|INFO|Logger|// Point(X=8, Y=12, str=e7)
+            2021-11-04 13:37:06.4654|INFO|Logger|<- jump e7
+            2021-11-04 13:37:06.4654|ERROR|Logger|Internal error occured:    at Quoridor.AiTester.QuoridorGameRunner.Play(ILogger logger, StreamWriter input, StreamReader output)
+               at IntroToGameDev.AiTester.SingleTestExecutor.Play(Process process)
+         */
+        [Test]
+        public void FailedTest4Automatic()
+        {
+            FakeIo.Write("black");
+            FakeIo.Write("wall U8v");
+            FakeIo.Write("move E8");
+            FakeIo.Write("move E7");
+            FakeIo.Write("move E6");
+            FakeIo.Write("wall W6h");
+            FakeIo.Write("STOP");
+            try
+            {
+                GameFlow.StartGame();
+            }
+            catch (Exception)
+            {
+                Assert.False(false);
+            }
         }
     }
 }

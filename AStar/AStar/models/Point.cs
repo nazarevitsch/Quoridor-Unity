@@ -8,6 +8,9 @@ namespace AStar.models
     {
         public bool IsVisited;
         public string Tag { get; set; } = "0";
+
+        private string Str => new Move(this).AsString;
+
         public Point(int x, int y, string tag = "")
         {
             X = x;
@@ -26,7 +29,7 @@ namespace AStar.models
         
         public override string ToString()
         {
-            return $"Point(X={X}, Y={Y}, str={new Move(this).AsString})";
+            return $"Point(X={X}, Y={Y}, str={Str})";
         }
     }
 }

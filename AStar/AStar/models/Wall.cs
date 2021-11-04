@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace AStar.models
 {
@@ -7,7 +8,7 @@ namespace AStar.models
         Vertical = 1,
         Horizontal = 2
     }
-    public class Wall
+    public class Wall : IEquatable<Wall>
     {
         private Dictionary<char, int> FromCharToIntMapX { get; } = new()
         {
@@ -55,14 +56,15 @@ namespace AStar.models
             {13, '7'},
             {15, '8'}
         };
-        
-        public Point Point { get; }
 
+        private string WallTypeAsString => WallType == WallType.Horizontal ? "h" : "v";
+        public string AsString => $"{FromIntToCharMapX[Point.X]}{FromIntToCharMapY[Point.Y]}{WallTypeAsString}";
+        public Point Point { get; }
         public WallType WallType { get; }
-        
-        public Wall(Point point)
+        public Wall(Point point, WallType wallType)
         {
             Point = point;
+            WallType = wallType;
         }
         
 
@@ -75,6 +77,12 @@ namespace AStar.models
                 Y = FromCharToIntMapY[wallString[1]]
             };
             WallType = wallString[2] == 'v' ? WallType.Vertical : WallType.Horizontal;
+        }
+
+        public bool Equals(Wall other)
+        {
+            if (other is null) return false;
+            return AsString == other.AsString || (Point.X == other.Point.X && Point.Y == other.Point.Y);
         }
     }
 }

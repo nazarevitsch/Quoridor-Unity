@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AStar.Controllers;
 using AStar.models.AI.MoveStrategies;
 using AStar.models.AI.MoveStrategies.BuildStrategies;
+using AStar.models.AI.MoveStrategies.WallStrategies;
 using AStar.models.IO;
 
 namespace AStar.models
@@ -10,6 +11,7 @@ namespace AStar.models
     
     public class GameFlow
     {
+        private List<Wall> UsedWalls { get; set; } = new(5);
         private IIoManager IoManager { get; }
         private bool IsOutMoveFirst { get; set; } = false;
         private Game Game { get; set; }
@@ -37,11 +39,26 @@ namespace AStar.models
             return move.Value;
         }
 
+        public Wall FindBestWall()
+        {
+            var wallPlace = new WallStreetStrategy<Point>();
+            return wallPlace.GetWallToPlace<UnderPlayerWallStrategy>(Game.CurrentPlayer.GetPosition(), Game.EnemyPlayer.GetPosition(), Game.Points);
+        }
+
         private void MakeMove()
         {
             var move = FindBestMove();
+            var wall = FindBestWall();
             IoManager.Write($"// Get Point: {move}");
             IoManager.Write($"// MakeMove: {new Move(move).AsString}, Current Player: {Game.CurrentPlayer.Name}");
+            if (wall is not null && !UsedWalls.Contains(wall))
+            {
+                IoManager.Write($"// Found wall. Placing {wall}");
+                Game.PlaceWall(wall);
+                IoManager.Write($"wall {wall.AsString}");
+                UsedWalls.Add(wall);
+                return;
+            }
             if (IsJump(move) || IsPlayer(move))
             {
                 Console.WriteLine("// Jump");
@@ -82,6 +99,7 @@ namespace AStar.models
         } 
         public void StartGame()
         {
+            Game.OnWallPlaced += wall => UsedWalls.Add(wall);
             Game.PlayWithFriend();
             var side = IoManager.Read()?.Trim();
             IoManager.Write($"// GOT {side}");
