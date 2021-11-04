@@ -3,9 +3,9 @@
 *.orig.meta
 *.ilk
 *.ilk.meta
-*.sln
+
 *.userprefs
-*.csproj
+
 *.csproj.user
 *.unityproj
 *.DotSettings.user

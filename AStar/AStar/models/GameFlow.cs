@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AStar.Controllers;
 using AStar.models.AI.MoveStrategies;
 using AStar.models.AI.MoveStrategies.BuildStrategies;
+using AStar.models.AI.MoveStrategies.MoveStrategies;
 using AStar.models.AI.MoveStrategies.WallStrategies;
 using AStar.models.IO;
 
@@ -13,13 +14,17 @@ namespace AStar.models
     {
         private List<Wall> UsedWalls { get; set; } = new(5);
         private IIoManager IoManager { get; }
+        
+        private MoveStrategyManager<Point> MoveStrategyManager { get; }
         private bool IsOutMoveFirst { get; set; } = false;
         private Game Game { get; set; }
         private Dictionary<string, IController> Controllers { get; } = new();
-        public GameFlow(Game game, IIoManager ioManager)
+        public GameFlow(Game game, IIoManager ioManager, MoveStrategyManager<Point> moveStrategy)
         {
             Game = game;
             IoManager = ioManager;
+            MoveStrategyManager = moveStrategy;
+
         }
         public void RegisterController(string cmd, IController controller)
         {
@@ -31,18 +36,13 @@ namespace AStar.models
                 .UseBuildTreeStrategy(() => new QuoridorBuildStrategy(Game, IsOutMoveFirst)); // This mean we are white
             miniMax.BuildTree(Game.Points, Game.CurrentPlayer.GetPosition());
             var res = miniMax.FindBestNode();
-            var move = res;
-            while (move.Parent != miniMax.Root)
-            {
-                move = move.Parent;
-            }
-            return move.Value;
+            return res.Value;
         }
 
         public Wall FindBestWall()
         {
-            var wallPlace = new WallStreetStrategy<Point>();
-            return wallPlace.GetWallToPlace<UnderPlayerWallStrategy>(Game.CurrentPlayer.GetPosition(), Game.EnemyPlayer.GetPosition(), Game.Points);
+            var wallPlace = new WallStreetStrategy<Point>(Game);
+            return wallPlace.GetWallToPlace<PlayerMoveDirWallStrategy>(Game.CurrentPlayer.GetPosition(), Game.EnemyPlayer.GetPosition(), Game.Points);
         }
 
         private void MakeMove()

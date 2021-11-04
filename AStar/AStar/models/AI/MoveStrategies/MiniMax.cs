@@ -68,7 +68,13 @@ namespace AStar.models.AI.MoveStrategies
 
         public MiniMaxNode<TCoords> FindBestNode()
         {
-            return Max(Root);
+            var best = Max(Root);
+            while (best.Parent != Root)
+            {
+                best = best.Parent;
+            }
+
+            return best;
         }
 
         private MiniMaxNode<TCoords> Max(MiniMaxNode<TCoords> node)

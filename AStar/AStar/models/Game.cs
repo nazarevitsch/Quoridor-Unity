@@ -211,8 +211,8 @@ namespace AStar.models
         }
         private void SpawnPlayers()
         {
-            CurrentPlayer = new Player(16, 0, 8, 16, 9, "White"); // White
-            EnemyPlayer = new Player(0, 16, 8, 0, 9, "Black"); // Black
+            CurrentPlayer = new Player(16, 0, 8, 16, 9, "White", PlayColor.White); // White
+            EnemyPlayer = new Player(0, 16, 8, 0, 9, "Black", PlayColor.Black); // Black
         }
         private Point[][] GenerateDesk()
         {
@@ -447,7 +447,7 @@ namespace AStar.models
             }
 
             Player temporalPLayer = new Player(player.StartY, player.FinishY, player.CurrentX,
-                player.CurrentY, player.BlocksCount, player.Name);
+                player.CurrentY, player.BlocksCount, player.Name, PlayColor.Black);
             Point currentPoint = Points[player.CurrentY][player.CurrentX];
             currentPoint.IsVisited = true;
             List<Point> list = FindPossiblePlatformsForWay(temporalPLayer, Points);

@@ -1,5 +1,10 @@
 ﻿namespace AStar.models
 {
+    public enum PlayColor
+    {
+        Black,
+        White
+    }
     public class Player
     {
         public string Name { get; }
@@ -8,8 +13,9 @@
         public int CurrentX;
         public int CurrentY;
         public int BlocksCount;
+        public PlayColor PlayColor { get; }
         
-        public Player(int startY, int finishY, int currentX, int currentY, int blocksCount, string name)
+        public Player(int startY, int finishY, int currentX, int currentY, int blocksCount, string name, PlayColor playColor)
         {
             CurrentX = currentX;
             CurrentY = currentY;
@@ -17,6 +23,7 @@
             StartY = startY;
             BlocksCount = blocksCount;
             Name = name;
+            PlayColor = playColor;
         }
 
         public Player(int curX, int curY)

@@ -5,13 +5,21 @@ namespace AStar.models.AI.MoveStrategies.WallStrategies
 {
     public class WallStreetStrategy<TCoord> : IWallPlacementStrategy<TCoord> where TCoord : Coords
     {
+        private Game Game { get; }
+        public WallStreetStrategy(Game game)
+        {
+            Game = game;
+        }
+
         public Wall GetWallToPlace<TWallCreateStrategy>(TCoord curPlayer, TCoord enemyPlayer, TCoord[][] points) where TWallCreateStrategy : IWallStrategy, new()
         {
             var wallStrategy = new TWallCreateStrategy();
             var random = new Random();
-            if (random.Next(1, 10) < 8) return null;
+            if (random.Next(1, 10) < 5) return null;
+            wallStrategy.MoveDirection =
+                Game.CurrentPlayer.PlayColor == PlayColor.White ? MoveDirection.Up : MoveDirection.Down;
             var wall = wallStrategy.GetWall(curPlayer, enemyPlayer, points);
-            return IsWallAlreadyPlaced(wall, points) ? null : wall;
+            return wall;
         }
 
         private bool IsWallAlreadyPlaced(Wall wall, TCoord [][] coords)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AStar.Controllers;
 using AStar.models;
+using AStar.models.AI.MoveStrategies.MoveStrategies;
 using AStar.models.AI.PathFinder;
 using AStar.models.IO;
 
@@ -41,7 +42,7 @@ namespace AStar
         static void Main(string[] args)
         {
             var game = new Game();
-            var gameFlow = new GameFlow(game, new ConsoleReader());
+            var gameFlow = new GameFlow(game, new ConsoleReader(), new MoveStrategyManager<Point>(game));
             Console.WriteLine("// Start game");
             gameFlow.RegisterController("move", new MoveController(game));
             gameFlow.RegisterController("wall", new WallController(game));
