@@ -1,6 +1,7 @@
 using System;
 using AStar.Controllers;
 using AStar.models;
+using AStar.models.AI.MoveStrategies.MoveStrategies;
 using AStar.models.IO;
 using NUnit.Framework;
 
@@ -17,7 +18,9 @@ namespace AITests
         public void Setup()
         {
             Game = new Game();
-            GameFlow = new GameFlow(Game, FakeIo);
+            var moveStr = new MoveStrategyManager<Point>(Game, FakeIo);
+            moveStr.UseMoveStrategy(() => new RandomMoveStrategy<Point>(Game, FakeIo));
+            GameFlow = new GameFlow(Game, FakeIo, moveStr);
             Game.PlayWithFriend();
             Game.ChangePlayers();
             GameFlow.RegisterController("move", new MoveController(Game));
@@ -332,6 +335,22 @@ namespace AITests
             FakeIo.Write("move E7");
             FakeIo.Write("move E6");
             FakeIo.Write("wall W6h");
+            FakeIo.Write("STOP");
+            try
+            {
+                GameFlow.StartGame();
+            }
+            catch (Exception)
+            {
+                Assert.False(false);
+            }
+        }
+        
+        [Test]
+        public void FailedTest5Automatic()
+        {
+            FakeIo.Write("black");
+            FakeIo.Write("wall U8v");
             FakeIo.Write("STOP");
             try
             {

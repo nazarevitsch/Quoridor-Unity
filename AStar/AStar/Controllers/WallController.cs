@@ -32,7 +32,7 @@ namespace AStar.Controllers
                 throw new Exception("Wrong move cmd");
             }
             var coords = cmdSplitted[1];
-            Game.PlaceWall(new Wall(coords.ToLower()), true, true);
+            Game.PlaceWall(new Wall(coords.ToLower()));
         }
     }
 }

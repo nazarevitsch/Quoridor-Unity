@@ -1,4 +1,5 @@
-﻿using AStar.models.AI.PathFinder;
+﻿using System;
+using AStar.models.AI.PathFinder;
 using AStar.models.IO;
 
 namespace AStar.models.AI.MoveStrategies.MoveStrategies
@@ -15,9 +16,9 @@ namespace AStar.models.AI.MoveStrategies.MoveStrategies
             IoManager = ioManager;
         }
 
-        public void UseMoveStrategy<TMoveStrategy>() where TMoveStrategy : IMoveStrategy<TCoord>, new()
+        public void UseMoveStrategy<TMoveStrategy>(Func<TMoveStrategy> creator = null) where TMoveStrategy : IMoveStrategy<TCoord>, new()
         {
-            MoveStrategy = new TMoveStrategy();
+            MoveStrategy = creator is not null ? creator() : new TMoveStrategy();
         }
 
         public void MakeMove(TCoord curPlayer, TCoord enemyPlayer, TCoord [][] points)

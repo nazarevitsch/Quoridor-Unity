@@ -12,7 +12,6 @@ namespace AStar.models
     
     public class GameFlow
     {
-        private List<Wall> UsedWalls { get; set; } = new(5);
         private IIoManager IoManager { get; }
         
         private MoveStrategyManager<Point> MoveStrategyManager { get; }
@@ -24,8 +23,13 @@ namespace AStar.models
             Game = game;
             IoManager = ioManager;
             MoveStrategyManager = moveStrategy;
-
         }
+
+        public void UseMoveStrategy<TMoveStrategy>(Func<TMoveStrategy> creator = null) where TMoveStrategy : IMoveStrategy<Point>, new()
+        {
+            MoveStrategyManager.UseMoveStrategy(creator);
+        }
+
         public void RegisterController(string cmd, IController controller)
         {
             Controllers[cmd] = controller;
@@ -39,75 +43,20 @@ namespace AStar.models
             return res.Value;
         }
 
-        public Wall FindBestWall()
-        {
-            var wallPlace = new WallStreetStrategy<Point>(Game);
-            return wallPlace.GetWallToPlace<PlayerMoveDirWallStrategy>(Game.CurrentPlayer.GetPosition(), Game.EnemyPlayer.GetPosition(), Game.Points);
-        }
-
-        private void MakeMove()
-        {
-            var move = FindBestMove();
-            var wall = FindBestWall();
-            IoManager.Write($"// Get Point: {move}");
-            IoManager.Write($"// MakeMove: {new Move(move).AsString}, Current Player: {Game.CurrentPlayer.Name}");
-            if (wall is not null && !UsedWalls.Contains(wall))
-            {
-                IoManager.Write($"// Found wall. Placing {wall}");
-                Game.PlaceWall(wall);
-                IoManager.Write($"wall {wall.AsString}");
-                UsedWalls.Add(wall);
-                return;
-            }
-            if (IsJump(move) || IsPlayer(move))
-            {
-                Console.WriteLine("// Jump");
-                Console.WriteLine("jump " + GetJumpMove(move).AsString);
-                Game.DoStep(move);
-            }
-            else
-            {
-                Game.DoStep(move);
-                IoManager.Write("move " + new Move(move).AsString);
-            }
-        }
-
-        private Move GetJumpMove(Point point)
-        {
-            IoManager.Write($"// Get point {point}");
-            if (Game.CurrentPlayer.CurrentX != point.X)
-            {
-                point.X += point.X > Game.CurrentPlayer.CurrentX ? 1 : -1;
-                IoManager.Write($"// {point}");
-                return new Move(point);
-            }
-            
-            point.Y += point.Y > Game.CurrentPlayer.CurrentY ? 2 : -2;
-            IoManager.Write($"// {point}");
-            return new Move(point);
-        }
-
-        private bool IsPlayer(Point point)
-        {
-            return point.X == Game.EnemyPlayer.CurrentX && point.Y == Game.EnemyPlayer.CurrentY;
-        }
-
-        private bool IsJump(Point point)
-        {
-            return Math.Abs(point.X - Game.CurrentPlayer.CurrentX) == 4 ||
-                   Math.Abs(point.Y - Game.CurrentPlayer.CurrentY) == 4;
-        } 
         public void StartGame()
         {
-            Game.OnWallPlaced += wall => UsedWalls.Add(wall);
             Game.PlayWithFriend();
+            if (MoveStrategyManager is null)
+            {
+                UseMoveStrategy(() => new RandomMoveStrategy<Point>(Game, IoManager));
+            }
             var side = IoManager.Read()?.Trim();
             IoManager.Write($"// GOT {side}");
             IsOutMoveFirst = side == Constants.White;
             if (side == "") throw new Exception("ddd");
             if (IsOutMoveFirst)
             {
-                MakeMove();
+                MoveStrategyManager.MakeMove(Game.CurrentPlayer.GetPosition(), Game.EnemyPlayer.GetPosition(), Game.Points);
             }
 
             while (!Game.IsGameOver)
@@ -120,7 +69,7 @@ namespace AStar.models
                     continue;
                 }
                 Controllers[cmds[0]]?.ExecuteCommand(enemyMove);
-                MakeMove();
+                MoveStrategyManager.MakeMove(Game.CurrentPlayer.GetPosition(), Game.EnemyPlayer.GetPosition(), Game.Points);
             }
         }
     }

@@ -15,7 +15,7 @@ namespace AStar.models.AI.MoveStrategies.WallStrategies
         {
             var wallStrategy = new TWallCreateStrategy();
             var random = new Random();
-            if (random.Next(1, 10) < 5) return null;
+            if (random.Next(1, 10) < 2) return null;
             wallStrategy.MoveDirection =
                 Game.CurrentPlayer.PlayColor == PlayColor.White ? MoveDirection.Up : MoveDirection.Down;
             var wall = wallStrategy.GetWall(curPlayer, enemyPlayer, points);

@@ -82,7 +82,9 @@ namespace AStar.models
         public bool Equals(Wall other)
         {
             if (other is null) return false;
-            return AsString == other.AsString || (Point.X == other.Point.X && Point.Y == other.Point.Y);
+            if (other.Point.X < 0 || other.Point.X > 16) return false;
+            if (other.Point.Y < 0 || other.Point.Y > 16) return false;
+            return AsString == other.AsString || Point.X == other.Point.X && Point.Y == other.Point.Y;
         }
     }
 }

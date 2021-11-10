@@ -54,6 +54,24 @@ namespace AStar.models
             StartGame();
         }
 
+        public bool CanWallBePlaced(Wall wall)
+        {
+            if (wall.Point.X > 16 || wall.Point.X < 0) return false;
+            if (wall.Point.Y < 0 || wall.Point.Y > 16) return false;
+            var leftWall = Points[wall.Point.Y][wall.Point.X - 1].Tag;
+            var rightWall = Points[wall.Point.Y][wall.Point.X + 1].Tag;
+            var leftHorizontalWall = Points[wall.Point.Y - 1][wall.Point.X].Tag;
+            var rightHorizontalWall = Points[wall.Point.Y + 1][wall.Point.X].Tag;
+            return !(leftWall == "Blocked" ||
+                     leftWall == "HalfBlocked" ||
+                     rightWall == "Blocked" ||
+                     rightWall == "HalfBlocked" ||
+                     leftHorizontalWall == "Blocked" ||
+                     leftHorizontalWall == "HalfBlocked" ||
+                     rightHorizontalWall == "Blocked" ||
+                     rightHorizontalWall == "HalfBlocked");
+        }
+
         public void DoStep(Point point)
         {
             CurrentPlayer.CurrentY = point.Y;
@@ -73,7 +91,7 @@ namespace AStar.models
             OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, false);
         }
 
-        public void PlaceWall(Wall wall, bool forceFirstBlockPut = false, bool forceSecondBlockPut = false)
+        public void PlaceWall(Wall wall)
         {
             if (!putBlock)
             {

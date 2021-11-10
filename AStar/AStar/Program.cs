@@ -6,6 +6,7 @@ using AStar.models;
 using AStar.models.AI.MoveStrategies.MoveStrategies;
 using AStar.models.AI.PathFinder;
 using AStar.models.IO;
+using AStar.Views;
 
 namespace AStar
 {
@@ -42,12 +43,24 @@ namespace AStar
         static void Main(string[] args)
         {
             var game = new Game();
-            var gameFlow = new GameFlow(game, new ConsoleReader(), new MoveStrategyManager<Point>(game));
+            var cr = new ConsoleReader();
+            var _ = new FieldView(game);
+            var gameFlow = new GameFlow(game, cr, new MoveStrategyManager<Point>(game, cr));
+            gameFlow.UseMoveStrategy(() => new PressAgainstTheWall<Point>(game, cr));
             Console.WriteLine("// Start game");
             gameFlow.RegisterController("move", new MoveController(game));
             gameFlow.RegisterController("wall", new WallController(game));
             gameFlow.RegisterController("jump", new JumpController(game));
-            gameFlow.StartGame();
+            try
+            {
+                gameFlow.StartGame();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine(e.StackTrace);
+                throw;
+            }
         }
     }
 }
