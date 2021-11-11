@@ -2,7 +2,7 @@
 
 namespace AStar.models.AI.PathFinder.Euristics
 {
-    class PifagorHeuristic : IHeuristicStrategy
+    public class PifagorHeuristic : IHeuristicStrategy
     {
         public double H<TCoordObj>(TCoordObj current, TCoordObj end, TCoordObj[][] pointsArr) where TCoordObj : Coords
         {

@@ -77,11 +77,11 @@ namespace AStar.models
             CurrentPlayer.CurrentY = point.Y;
             CurrentPlayer.CurrentX = point.X;
             OnChangePossiblePlatforms?.Invoke(CurrentPlayer, EnemyPlayer, Points, true);
-            if (CheckWin(CurrentPlayer)) return;
+          //  if (CheckWin(CurrentPlayer)) return;
             if (_withPc)
             {
                 BotMove();
-                if (CheckWin(EnemyPlayer)) return;
+         //       if (CheckWin(EnemyPlayer)) return;
             }
             else
             {

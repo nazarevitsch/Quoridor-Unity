@@ -63,7 +63,7 @@ namespace AStar.models.AI.MoveStrategies.MoveStrategies
 
         private void DoStep(Point move)
         {
-            IoManager.Write($"// PressAWall_DoStep: wall placed {move}");
+            IoManager.Write($"// PressAWall_DoStep: {move} Player is white: {Game.CurrentPlayer.PlayColor == PlayColor.White}");
             if (IsJump(move) || IsPlayer(move))
             {
                 Console.WriteLine("// Jump");
@@ -94,10 +94,11 @@ namespace AStar.models.AI.MoveStrategies.MoveStrategies
 
         private MiniMaxNode<Point> FindBestMove(Point point, bool up)
         {
+            IoManager.Write($"// Press_Ag_wall move up: {up}, point is {point}");
             var miniMax = new MiniMax<Point>(3)
                 .UseBuildTreeStrategy(() => new QuoridorBuildStrategy(Game, up));
             miniMax.BuildTree(Game.Points, point);
-            var res = miniMax.FindBestNode();
+            var res = miniMax.FindBestNodeBF();
             return res;
         }
         

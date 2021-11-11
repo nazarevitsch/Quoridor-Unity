@@ -44,7 +44,7 @@ namespace AStar
         {
             var game = new Game();
             var cr = new ConsoleReader();
-            var _ = new FieldView(game);
+           // var _ = new FieldView(game);
             var gameFlow = new GameFlow(game, cr, new MoveStrategyManager<Point>(game, cr));
             gameFlow.UseMoveStrategy(() => new PressAgainstTheWall<Point>(game, cr));
             Console.WriteLine("// Start game");

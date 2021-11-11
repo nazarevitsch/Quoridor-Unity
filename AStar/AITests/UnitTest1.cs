@@ -1,7 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using AStar.models.AI.PathFinder;
 using AStar.Controllers;
 using AStar.models;
+using AStar.models.AI.MoveStrategies;
+using AStar.models.AI.MoveStrategies.BuildStrategies;
 using AStar.models.AI.MoveStrategies.MoveStrategies;
+using AStar.models.AI.PathFinder.PathFindStrategies;
+using AStar.models.AI.PathFinder.Euristics;
 using AStar.models.IO;
 using NUnit.Framework;
 
@@ -33,7 +40,51 @@ namespace AITests
             var move = GameFlow.FindBestMove();
             Assert.That(() => move.X == 8 && move.Y == 2);
         }
+
+        [Test]
+        public void PosiblePlatforms()
+        {
+            var list = Game.FindPossiblePlatforms(new Player(4, 14), Game.EnemyPlayer, Game.Points);
+            Assert.That(() => list.Count == 4);
+        }
         
+        [Test]
+        public void LowestH()
+        {
+            var list = Game.FindPossiblePlatforms(new Player(4, 14), Game.EnemyPlayer, Game.Points);
+            var aStar = new AStar<Point>()
+                .UseHeuristicStrategy<PifagorHeuristic>()
+                .UseNeighbourFindStrategy<FourWayPath>();
+            var xs = new List<int>
+            {
+                0, 2, 4, 6, 8, 10, 12, 14, 16 
+                //  a, b, c, d, e, f,  g,  h,  i
+            };
+            var Y =  16; // first or last row
+            var res = xs.Select(X =>
+                {
+                    return aStar.Resolve(Game.Points, new Point {X = 4, Y = 14}, new Point
+                    {
+                        X = X,
+                        Y = Y 
+                    }).Count;
+                }
+            ).Min();
+            Assert.That(() => res == 2);
+            
+        }
+
+        [Test]
+        public void BestMove()
+        {
+            var miniMax = new MiniMax<Point>(3)
+                .UseBuildTreeStrategy(() => new QuoridorBuildStrategy(Game, true)); // This mean we are white
+            miniMax.BuildTree(Game.Points, new Point{ X = 8, Y = 2 });
+            var res2 = miniMax.FindBestNodeBF();
+            Assert.True(true);
+        }
+
+
         [Test]
         public void TwoSteps()
         {

@@ -47,7 +47,7 @@ namespace AStar.models.AI.MoveStrategies.BuildStrategies
                     Y = Y 
                 }).Count;
             }
-            ).Min();
+            ).Where(res => res > 0).Min();
         }
     }
 }
