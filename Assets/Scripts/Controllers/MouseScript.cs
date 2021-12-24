@@ -1,4 +1,5 @@
 ﻿using models;
+using Networking;
 using store;
 using UnityEngine;
 
@@ -8,12 +9,14 @@ namespace Controllers
     {
         private Game _game;
         private UnityObjStore _objStore;
+        private NetworkController _networkController;
         private bool isPaused;
 
         private void Awake()
         {
             _objStore = FindObjectOfType<UnityObjStore>();
             _game = FindObjectOfType<Game>();
+            _networkController = FindObjectOfType<NetworkController>();
         }
 
         void Update()
@@ -36,6 +39,12 @@ namespace Controllers
                         {
                             case "Unblocked":
                                 _game.PutBlock(point);
+                                _networkController.SendCommand(new Command
+                                {
+                                    Code = "PutBlock",
+                                    Position = point,
+                                    PlayColor = _game.CurrentPlayer.Name == "Player 1" ? PlayColor.White : PlayColor.Black
+                                });
                                 break;
                             case "PossibleToBlock":
                                 _game.PutBlock(point);
@@ -45,6 +54,12 @@ namespace Controllers
                                 var destination = gameObj.transform.position;
                                 _objStore.PlayerObjects[_game.CurrentPlayer.Name].transform.position = destination;
                                 _game.DoStep(point);
+                                _networkController.SendCommand(new Command
+                                {
+                                    Code = "Move",
+                                    Position = point,
+                                    PlayColor = _game.CurrentPlayer.Name == "Player 1" ? PlayColor.White : PlayColor.Black
+                                });
                                 break;
                             }
                         }
