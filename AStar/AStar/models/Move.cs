@@ -73,8 +73,5 @@ namespace AStar.models
                 Y = FromCharToIntMapY[stringMove[1]]
             };
         }
-        
-        
-        
     }
 }

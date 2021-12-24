@@ -1,66 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AStar.Controllers;
-using AStar.models;
-using AStar.models.AI.MoveStrategies.MoveStrategies;
-using AStar.models.AI.PathFinder;
-using AStar.models.IO;
-using AStar.Views;
+using System.Text.Json;
+using AStar.networking;
 
 namespace AStar
 {
     
     class Program
     {
-        static void PrintField(Point[][] points, Point start, Point end)
-        {
-            foreach (var row in points)
-            {
-                foreach (var col in row)
-                {
-                    if (col.X == start.X && col.Y == start.Y)
-                    {
-                        Console.Write("* ");
-                    }
-                    else if (col.X == end.X && col.Y == end.Y)
-                    {
-                        Console.Write("X "); 
-                    }
-                    else
-                    {
-                        Console.Write($"{col.Tag} ");
-
-                    }
-                }
-                Console.WriteLine();
-            }
-        }
-        static void PrintPath(List<Node> path)
-        {
-            Console.WriteLine(string.Join("=>", path.Select(node => $"[{node.X}, {node.Y}]")));
-        }
         static void Main(string[] args)
         {
-            var game = new Game();
-            var cr = new ConsoleReader();
-           // var _ = new FieldView(game);
-            var gameFlow = new GameFlow(game, cr, new MoveStrategyManager<Point>(game, cr));
-            gameFlow.UseMoveStrategy(() => new PressAgainstTheWall<Point>(game, cr));
-            Console.WriteLine("// Start game");
-            gameFlow.RegisterController("move", new MoveController(game));
-            gameFlow.RegisterController("wall", new WallController(game));
-            gameFlow.RegisterController("jump", new JumpController(game));
-            try
-            {
-                gameFlow.StartGame();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                Console.WriteLine(e.StackTrace);
-                throw;
-            }
+            var server = new Server();
+            server.Start();
         }
     }
 }

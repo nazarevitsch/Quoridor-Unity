@@ -56,20 +56,16 @@ namespace AStar.models
 
         public bool CanWallBePlaced(Wall wall)
         {
-            if (wall.Point.X > 16 || wall.Point.X < 0) return false;
-            if (wall.Point.Y < 0 || wall.Point.Y > 16) return false;
+            if (wall.Point.X is > 16 or < 0) return false;
+            if (wall.Point.Y is < 0 or > 16) return false;
             var leftWall = Points[wall.Point.Y][wall.Point.X - 1].Tag;
             var rightWall = Points[wall.Point.Y][wall.Point.X + 1].Tag;
             var leftHorizontalWall = Points[wall.Point.Y - 1][wall.Point.X].Tag;
             var rightHorizontalWall = Points[wall.Point.Y + 1][wall.Point.X].Tag;
-            return !(leftWall == "Blocked" ||
-                     leftWall == "HalfBlocked" ||
-                     rightWall == "Blocked" ||
-                     rightWall == "HalfBlocked" ||
-                     leftHorizontalWall == "Blocked" ||
-                     leftHorizontalWall == "HalfBlocked" ||
-                     rightHorizontalWall == "Blocked" ||
-                     rightHorizontalWall == "HalfBlocked");
+            return !(leftWall is "Blocked" or "HalfBlocked" ||
+                     rightWall is "Blocked" or "HalfBlocked" ||
+                     leftHorizontalWall is "Blocked" or "HalfBlocked" ||
+                     rightHorizontalWall is "Blocked" or "HalfBlocked");
         }
 
         public void DoStep(Point point)
